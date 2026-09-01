@@ -477,17 +477,35 @@
   </div>
 
   <script>
+    <script>
     // CONFIGURAÇÃO DO SUPABASE (Substitua com suas chaves reais do painel)
     const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
     const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_DO_SUPABASE';
     
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let supabaseClient = null;
+    try {
+      if (typeof supabase !== 'undefined') {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } else {
+        console.error('A biblioteca do Supabase não foi carregada.');
+      }
+    } catch (e) {
+      console.error('Erro ao inicializar o Supabase:', e);
+    }
 
     // FUNÇÃO DE LOGIN
     async function fazerLogin() {
-      const cpf = document.getElementById('login-cpf').value.trim();
-      const senha = document.getElementById('login-senha').value.trim();
+      const cpfInput = document.getElementById('login-cpf');
+      const senhaInput = document.getElementById('login-senha');
       const erroEl = document.getElementById('login-error');
+
+      if (!cpfInput || !senhaInput || !erroEl) {
+        console.error('Elementos de login não encontrados no DOM.');
+        return;
+      }
+
+      const cpf = cpfInput.value.trim();
+      const senha = senhaInput.value.trim();
 
       erroEl.innerText = '';
 
@@ -496,41 +514,62 @@
         return;
       }
 
-      const emailFicticio = cpf + '@escola.com';
-
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: emailFicticio,
-        password: senha
-      });
-
-      if (error) {
-        erroEl.innerText = 'CPF ou senha incorretos.';
+      if (!supabaseClient) {
+        erroEl.innerText = 'Erro de conexão com o Supabase. Verifique a biblioteca.';
         return;
       }
 
-      liberarSistema();
+      // Tratando o CPF como e-mail fictício para autenticação no Supabase Auth
+      const emailFicticio = cpf + '@escola.com';
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: emailFicticio,
+          password: senha
+        });
+
+        if (error) {
+          console.error('Erro do Supabase:', error.message);
+          erroEl.innerText = 'CPF ou senha incorretos.';
+          return;
+        }
+
+        if (data && data.session) {
+          liberarSistema();
+        } else {
+          erroEl.innerText = 'Não foi possível iniciar a sessão.';
+        }
+      } catch (err) {
+        console.error('Erro inesperado na requisição:', err);
+        erroEl.innerText = 'Ocorreu um erro ao tentar conectar. Verifique o console.';
+      }
     }
 
     // FUNÇÃO DE LOGOUT
     async function fazerLogout() {
-      await supabaseClient.auth.signOut();
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
       location.reload();
     }
 
     // MOSTRAR O SISTEMA E OCULTAR LOGIN
     function liberarSistema() {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('sistema-container').style.display = 'block';
+      const loginScreen = document.getElementById('login-screen');
+      const sistemaContainer = document.getElementById('sistema-container');
+      
+      if (loginScreen) loginScreen.style.display = 'none';
+      if (sistemaContainer) sistemaContainer.style.display = 'block';
     }
 
     // VERIFICAR SESSÃO ATIVA AO ABRIR A PÁGINA
-    supabaseClient.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        liberarSistema();
-      }
-    });
-
-    // (O restante da lógica original do seu sistema continua funcionando aqui embaixo normalmente)
+    if (supabaseClient) {
+      supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          liberarSistema();
+        }
+      }).catch(err => {
+        console.error('Erro ao verificar sessão:', err);
+      });
+    }
   </script>
-</body>
-</html>
