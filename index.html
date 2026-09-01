@@ -571,6 +571,46 @@
         console.error('Erro ao verificar sessão:', err);
       });
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnImportar = document.getElementById('btn-importar-lista');
+      if (btnImportar) {
+        btnImportar.addEventListener('click', function() {
+          const textarea = document.getElementById('importar-texto');
+          if (!textarea) return;
+
+          const texto = textarea.value.trim();
+          if (!texto) {
+            alert('Cole a lista de alunos antes de importar.');
+            return;
+          }
+
+          const linhas = texto.split('\n');
+      let listaAlunos = [];
+
+          linhas.forEach(linha => {
+            if (!linha.trim()) return;
+            const partes = linha.split(';');
+            if (partes.length >= 3) {
+              listaAlunos.push({
+                nome: partes[0].trim(),
+                serie: partes[1].trim(),
+                turma: partes[2].trim()
+              });
+            }
+          });
+
+          if (listaAlunos.length > 0) {
+            localStorage.setItem('alunos_cadastrados', JSON.stringify(listaAlunos));
+            alert(listaAlunos.length + ' alunos importados com sucesso!');
+            location.reload();
+          } else {
+            alert('Nenhum aluno válido encontrado. Verifique se o formato está como Nome;Série;Turma.');
+          }
+        });
+      }
+    });
+
   </script>
 </body>
 </html>
