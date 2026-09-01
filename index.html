@@ -200,6 +200,58 @@
   .doc-mini-recibo .doc-h1-mini{font-size:1.05rem;letter-spacing:1px;}
   .doc-mini-recibo .doc-via-mini{font-weight:700;color:#333;}
 
+
+  /* ---------- OCORRÊNCIA: 3 vias em uma única folha A4 ---------- */
+  .doc-ocorrencia-tripla{padding:7mm 10mm;display:flex;flex-direction:column;justify-content:flex-start;gap:0;}
+  .doc-oc-triplo{padding:6px 10px;border:1px solid #777;border-radius:0;page-break-inside:avoid;break-inside:avoid;}
+  .doc-oc-triplo .doc-header-row{gap:9px;margin-bottom:1px;}
+  .doc-oc-triplo .doc-timbre-mini{height:20px;max-width:66%;}
+  .doc-oc-triplo .doc-brasao-mini{height:20px;}
+  .doc-oc-triplo .doc-escola-nome-mini{font-size:.62rem;margin-bottom:2px;}
+  .doc-oc-triplo .doc-numero-mini{font-size:.52rem;margin-bottom:1px;}
+  .doc-oc-triplo .doc-h1-mini{font-size:.78rem;margin:2px 0 3px;}
+  .oc-identificacao{display:grid;grid-template-columns:2.6fr .8fr 2fr 1fr;gap:3px;font-size:.63rem;line-height:1.2;margin-bottom:3px;}
+  .oc-controle{font-size:.59rem;display:flex;align-items:center;gap:3px;margin:2px 0 3px;white-space:nowrap;}
+  .oc-num-box{font-weight:700;border:1px solid #000;width:11px;height:11px;line-height:9px;text-align:center;display:inline-block;margin-left:2px;}
+  .oc-num-check{width:10px;height:10px;border:1px solid #000;display:inline-block;margin-left:-2px;}
+  .oc-controle-text{font-size:.5rem;color:#555;margin-left:3px;}
+  .doc-oc-triplo .doc-section-title-mini{font-size:.62rem;margin-top:3px;}
+  .doc-oc-triplo .doc-checks-mini{font-size:.56rem;gap:2px 7px;margin:2px 0;line-height:1.1;}
+  .doc-oc-triplo .doc-checks-mini .item{gap:2px;}
+  .doc-oc-triplo .doc-checks-mini .box{width:10px;height:10px;font-size:8px;line-height:8px;}
+  .doc-oc-triplo .doc-lines-mini{font-size:.55rem;min-height:10px;margin:2px 0;padding:1px 2px 2px;}
+  .doc-oc-triplo .oc-relato{min-height:22px;}
+  .doc-oc-triplo .oc-providencias{min-height:11px;}
+  .doc-oc-triplo .doc-p-mini{font-size:.58rem;margin:2px 0;line-height:1.15;}
+  .doc-oc-triplo .sig-row-mini{font-size:.58rem;margin-top:7px;gap:10px;align-items:flex-end;}
+  .doc-oc-triplo .sig-col-mini{padding-top:16px;min-height:24px;border-top:1px solid #000;text-align:center;}
+  .oc-corte{font-size:.48rem;color:#555;margin:2px 0;line-height:1;}
+  @media print{
+    @page{ size: A4; margin: 0; }
+    .app-chrome, .tabs, .panel:not(.printing){display:none !important;}
+    body{background:#fff;margin:0;}
+    .app{max-width:100%;padding:0;margin:0;}
+    .doc-page{border:none;margin:0;page-break-after:always;padding:14mm 16mm;width:210mm;min-height:297mm;box-sizing:border-box;}
+    .doc-page-triplo, .doc-page-dupla{margin:0;page-break-after:always;width:210mm;height:297mm;min-height:0;max-height:297mm;overflow:hidden;}
+    .no-print{display:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="app-chrome">
+    <div class="app-title">
+      <h1>Sistema de Fichas do Aluno</h1>
+      <p>E.M.T.I Estevão Alves da Rocha · Inep 23224550 · Baturité/CE</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="alunos">👥 Alunos</button>
+      <button class="tab-btn" data-tab="historico">📊 Histórico</button>
+    </div>
+  </div>
+
   /* ---------- TELA DE LOGIN (Supabase) ---------- */
   #login-screen{
     max-width:400px;margin:60px auto;background:#fff;padding:30px;border-radius:14px;
