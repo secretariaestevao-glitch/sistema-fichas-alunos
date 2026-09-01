@@ -1,240 +1,334 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Fichas do Aluno - E.M.T.I Estevão Alves da Rocha</title>
+    <meta charset="UTF-8">
+    <title>Notificação de Ocorrência e Suspensão - E.M.T.I. Estevão Alves da Rocha</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #000;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 16px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .header h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-top: 5px;
+            color: #444;
+        }
+        .header p {
+            font-size: 12px;
+            margin-top: 3px;
+        }
+        .title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            margin: 15px 0;
+            text-transform: uppercase;
+            background: #eee;
+            padding: 6px;
+            border: 1px solid #ccc;
+        }
+        .form-group {
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        label {
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+        .line-input {
+            border-bottom: 1px dotted #000;
+            display: inline-block;
+            width: 100%;
+            min-height: 18px;
+        }
+        .box-text {
+            border: 1px solid #000;
+            padding: 10px;
+            min-height: 70px;
+            margin-top: 5px;
+            border-radius: 4px;
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        .signatures {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+        }
+        .signature-line {
+            width: 45%;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            font-size: 12px;
+        }
+        .via-indicator {
+            text-align: right;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .page-break {
+            page-break-after: always;
+            margin-top: 40px;
+            border-top: 2px dashed #999;
+            padding-top: 40px;
+        }
+        .no-print {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .btn-print {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-print:hover {
+            background-color: #004085;
+        }
 
-  <!-- Biblioteca do Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <style>
-    body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    h1, h2 { color: #1a365d; }
-    input, textarea, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    button { background-color: #2b6cb0; color: white; border: none; font-weight: bold; cursor: pointer; }
-    button:hover { background-color: #2c5282; }
-    .btn-danger { background-color: #c53030; }
-    .btn-danger:hover { background-color: #9b2c2c; }
-    #login-screen { max-width: 400px; margin: 100px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .aluno-card { background: #fff; border: 1px solid #e2e8f0; padding: 12px; margin-bottom: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
-  </style>
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
-  <div id="login-screen">
-    <h2>Login do Sistema</h2>
-    <input type="text" id="login-cpf" placeholder="Digite seu CPF">
-    <input type="password" id="login-senha" placeholder="Digite sua senha">
-    <button onclick="fazerLogin()">Entrar</button>
-    <p id="login-error" style="color: red; font-size: 14px;"></p>
-  </div>
-
-  <!-- TELA DO SISTEMA PRINCIPAL -->
-  <div id="sistema-container" class="container" style="display: none;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <h1>Sistema de Fichas do Aluno</h1>
-        <p>E.M.T.I Estevão Alves da Rocha - Baturité/CE</p>
-      </div>
-      <button onclick="fazerLogout()" class="btn-danger" style="width: auto; padding: 8px 16px;">Sair</button>
+<div class="container">
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ Baixar / Imprimir Notificações</button>
     </div>
 
-    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-
-    <!-- SEÇÃO DE IMPORTAÇÃO EM LOTE -->
-    <div>
-      <h3>Atualizar lista de alunos (em lote)</h3>
-      <p style="font-size: 13px; color: #666;">Cole a lista abaixo no formato <code>Nome;Série;Turma</code> (um aluno por linha).</p>
-      <textarea id="importar-texto" rows="6" placeholder="Ex:&#10;JOÃO DA SILVA SOUZA;5º Ano;A&#10;MARIA EDUARDA LIMA;5º Ano;A"></textarea>
-      <button id="btn-importar-lista">Importar / atualizar lista</button>
+    <!-- ================= 1ª VIA (COMPLETA) ================= -->
+    <div class="via-indicator">1ª Via - Escola / Pasta do Aluno</div>
+    <div class="header">
+        <h1>Escola Municipal de Tempo Integral Estevão Alves da Rocha</h1>
+        <h2>Notificação de Ocorrência e Termo de Suspensão</h2>
+        <p>INEP: [Inserir INEP] | Baturité - Ceará</p>
     </div>
 
-    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+    <div class="title">Termo de Ocorrência Disciplinar</div>
 
-    <!-- SEÇÃO DE LISTAGEM DE ALUNOS -->
-    <div>
-      <h3>Alunos Cadastrados</h3>
-      <input type="text" id="busca-aluno" placeholder="Buscar aluno pelo nome..." oninput="filtrarAlunos()">
-      <div id="lista-alunos-container" style="margin-top: 15px;">
-        <!-- Os alunos importados aparecerão aqui automaticamente -->
-      </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label>Estudante:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+        <div class="form-group" style="flex: 0.4;">
+            <label>Turma:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
     </div>
-  </div>
 
-  <!-- SCRIPT GERAL DO SISTEMA -->
-  <script>
-    const SUPABASE_URL = 'https://pqpqhklitnnilukjailn.supabase.co';
-    const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_AQUI'; // Substitua pela sua chave anon real se necessário
-    
-    let supabaseClient = null;
-    try {
-      if (typeof supabase !== 'undefined') {
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      } else {
-        console.error('A biblioteca do Supabase não foi carregada.');
-      }
-    } catch (e) {
-      console.error('Erro ao inicializar o Supabase:', e);
-    }
+    <div class="form-row">
+        <div class="form-group">
+            <label>Responsável:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+        <div class="form-group" style="flex: 0.4;">
+            <label>Data:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+    </div>
 
-    // FUNÇÃO DE LOGIN
-    async function fazerLogin() {
-      const cpfInput = document.getElementById('login-cpf');
-      const senhaInput = document.getElementById('login-senha');
-      const erroEl = document.getElementById('login-error');
+    <div class="form-group">
+        <label>Descrição do Ocorrido / Infração:</label>
+        <div class="box-text"></div>
+    </div>
 
-      if (!cpfInput || !senhaInput || !erroEl) return;
+    <div class="form-group">
+        <label>Sanção Aplicada:</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox" disabled> Advertência Escrita</label>
+            <label><input type="checkbox" disabled> Suspensão de <span style="border-bottom:1px dotted #000; display:inline-block; width:30px;"></span> dia(s)</label>
+        </div>
+    </div>
 
-      const cpf = cpfInput.value.trim();
-      const senha = senhaInput.value.trim();
+    <div class="form-group">
+        <label>Período da Suspensão (se aplicável):</label>
+        <span class="line-input">&nbsp;</span>
+    </div>
 
-      erroEl.innerText = '';
+    <div class="signatures">
+        <div class="signature-line">Assinatura da Gestão / Coordenação</div>
+        <div class="signature-line">Assinatura do Responsável</div>
+    </div>
 
-      if (!cpf || !senha) {
-        erroEl.innerText = 'Preencha o CPF e a senha.';
-        return;
-      }
+    <div class="page-break"></div>
 
-      if (!supabaseClient) {
-        erroEl.innerText = 'Erro de conexão com o Supabase.';
-        return;
-      }
+    <!-- ================= 2ª VIA (EM BRANCO) ================= -->
+    <div class="via-indicator">2ª Via - Responsável</div>
+    <div class="header">
+        <h1>Escola Municipal de Tempo Integral Estevão Alves da Rocha</h1>
+        <h2>Notificação de Ocorrência e Termo de Suspensão</h2>
+        <p>INEP: [Inserir INEP] | Baturité - Ceará</p>
+    </div>
 
-      const emailFicticio = cpf + '@escola.com';
+    <div class="title">Termo de Ocorrência Disciplinar</div>
 
-      try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email: emailFicticio,
-          password: senha
-        });
+    <div class="form-row">
+        <div class="form-group">
+            <label>Estudante:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+        <div class="form-group" style="flex: 0.4;">
+            <label>Turma:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+    </div>
 
-        if (error) {
-          erroEl.innerText = 'CPF ou senha incorretos.';
-          return;
-        }
+    <div class="form-row">
+        <div class="form-group">
+            <label>Responsável:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+        <div class="form-group" style="flex: 0.4;">
+            <label>Data:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+    </div>
 
-        if (data && data.session) {
-          liberarSistema();
-        } else {
-          erroEl.innerText = 'Não foi possível iniciar a sessão.';
-        }
-      } catch (err) {
-        erroEl.innerText = 'Ocorreu um erro ao tentar conectar.';
-      }
-    }
+    <div class="form-group">
+        <label>Descrição do Ocorrido / Infração:</label>
+        <div class="box-text"></div>
+    </div>
 
-    // FUNÇÃO DE LOGOUT
-    async function fazerLogout() {
-      if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-      }
-      location.reload();
-    }
+    <div class="form-group">
+        <label>Sanção Aplicada:</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox"> Advertência Escrita</label>
+            <label><input type="checkbox"> Suspensão de <span style="border-bottom:1px dotted #000; display:inline-block; width:30px;"></span> dia(s)</label>
+        </div>
+    </div>
 
-    // MOSTRAR O SISTEMA E OCULTAR LOGIN
-    function liberarSistema() {
-      const loginScreen = document.getElementById('login-screen');
-      const sistemaContainer = document.getElementById('sistema-container');
-      
-      if (loginScreen) loginScreen.style.display = 'none';
-      if (sistemaContainer) sistemaContainer.style.display = 'block';
+    <div class="form-group">
+        <label>Período da Suspensão (se aplicável):</label>
+        <span class="line-input">&nbsp;</span>
+    </div>
 
-      carregarAlunosNaTela();
-    }
+    <div class="signatures">
+        <div class="signature-line">Assinatura da Gestão / Coordenação</div>
+        <div class="signature-line">Assinatura do Responsável</div>
+    </div>
 
-    // VERIFICAR SESSÃO ATIVA AO ABRIR A PÁGINA
-    if (supabaseClient) {
-      supabaseClient.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          liberarSistema();
-        }
-      }).catch(err => {
-        console.error('Erro ao verificar sessão:', err);
-      });
-    }
+    <div class="page-break"></div>
 
-    // RENDERIZAR E EXIBIR ALUNOS NA TELA
-    function carregarAlunosNaTela(filtro = '') {
-      const container = document.getElementById('lista-alunos-container');
-      if (!container) return;
+    <!-- ================= 3ª VIA (EM BRANCO) ================= -->
+    <div class="via-indicator">3ª Via - Coordenação / Professor</div>
+    <div class="header">
+        <h1>Escola Municipal de Tempo Integral Estevão Alves da Rocha</h1>
+        <h2>Notificação de Ocorrência e Termo de Suspensão</h2>
+        <p>INEP: [Inserir INEP] | Baturité - Ceará</p>
+    </div>
 
-      const dadosSalvos = localStorage.getItem('alunos_cadastrados');
-      if (!dadosSalvos) {
-        container.innerHTML = '<p style="color: #666;">Nenhum aluno cadastrado ou importado ainda.</p>';
-        return;
-      }
+    <div class="title">Termo de Ocorrência Disciplinar</div>
 
-      const alunos = JSON.parse(dadosSalvos);
-      container.innerHTML = '';
+    <div class="form-row">
+        <div class="form-group">
+            <label>Estudante:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+        <div class="form-group" style="flex: 0.4;">
+            <label>Turma:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+    </div>
 
-      const alunosFiltrados = alunos.filter(a => a.nome.toLowerCase().includes(filtro.toLowerCase()));
+    <div class="form-row">
+        <div class="form-group">
+            <label>Responsável:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+        <div class="form-group" style="flex: 0.4;">
+            <label>Data:</label>
+            <span class="line-input">&nbsp;</span>
+        </div>
+    </div>
 
-      if (alunosFiltrados.length === 0) {
-        container.innerHTML = '<p style="color: #666;">Nenhum aluno encontrado com esse nome.</p>';
-        return;
-      }
+    <div class="form-group">
+        <label>Descrição do Ocorrido / Infração:</label>
+        <div class="box-text"></div>
+    </div>
 
-      alunosFiltrados.forEach(aluno => {
-        const card = document.createElement('div');
-        card.className = 'aluno-card';
-        card.innerHTML = `
-          <div>
-            <strong>${aluno.nome}</strong><br>
-            <span style="font-size: 13px; color: #666;">Série: ${aluno.serie} | Turma: ${aluno.turma}</span>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
+    <div class="form-group">
+        <label>Sanção Aplicada:</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox"> Advertência Escrita</label>
+            <label><input type="checkbox"> Suspensão de <span style="border-bottom:1px dotted #000; display:inline-block; width:30px;"></span> dia(s)</label>
+        </div>
+    </div>
 
-    function filtrarAlunos() {
-      const termo = document.getElementById('busca-aluno').value;
-      carregarAlunosNaTela(termo);
-    }
+    <div class="form-group">
+        <label>Período da Suspensão (se aplicável):</label>
+        <span class="line-input">&nbsp;</span>
+    </div>
 
-    // SCRIPT DE IMPORTAÇÃO EM LOTE
-    document.addEventListener('DOMContentLoaded', () => {
-      const btnImportar = document.getElementById('btn-importar-lista');
-      if (btnImportar) {
-        btnImportar.addEventListener('click', function() {
-          const textarea = document.getElementById('importar-texto');
-          if (!textarea) return;
+    <div class="signatures">
+        <div class="signature-line">Assinatura da Gestão / Coordenação</div>
+        <div class="signature-line">Assinatura do Responsável</div>
+    </div>
 
-          const texto = textarea.value.trim();
-          if (!texto) {
-            alert('Cole a lista de alunos antes de importar.');
-            return;
-          }
+</div>
 
-          const linhas = texto.split('\n');
-          let listaAlunos = [];
-
-          linhas.forEach(linha => {
-            if (!linha.trim()) return;
-            const partes = linha.split(';');
-            if (partes.length >= 3) {
-              listaAlunos.push({
-                nome: partes[0].trim(),
-                serie: partes[1].trim(),
-                turma: partes[2].trim()
-              });
-            }
-          });
-
-          if (listaAlunos.length > 0) {
-            localStorage.setItem('alunos_cadastrados', JSON.stringify(listaAlunos));
-            alert(listaAlunos.length + ' alunos importados com sucesso!');
-            carregarAlunosNaTela();
-            textarea.value = '';
-          } else {
-            alert('Nenhum aluno válido encontrado. Verifique se o formato está estritamente como Nome;Série;Turma.');
-          }
-        });
-      }
-    });
-  </script>
 </body>
 </html>
