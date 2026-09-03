@@ -16,6 +16,7 @@
       --border: #e2e8f0;
       --danger: #ef4444;
       --danger-hover: #dc2626;
+      --success: #16a34a;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
@@ -45,6 +46,8 @@
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-danger { background: var(--danger); color: white; }
     .btn-danger:hover { background: var(--danger-hover); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-secondary { background: #64748b; color: white; }
     .btn-sm { padding: 5px 10px; font-size: 12px; }
 
     #login-error { color: var(--danger); font-size: 13px; margin-top: 12px; text-align: center; font-weight: 500; }
@@ -59,9 +62,9 @@
     .header-title h1 { font-size: 20px; color: var(--primary); }
     .header-title p { font-size: 13px; color: var(--text-muted); }
 
-    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
     .tab-btn {
-      padding: 10px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; color: var(--text-muted); transition: 0.2s;
+      padding: 10px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; color: var(--text-muted); transition: 0.2s; flex: 1; text-align: center; min-width: 120px;
     }
     .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
@@ -69,14 +72,12 @@
       background: var(--card-bg); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;
     }
 
-    /* Toolbar de filtros */
     .toolbar {
       display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid var(--border);
     }
     .toolbar input { flex: 2; min-width: 220px; }
     .toolbar select { flex: 1; min-width: 150px; }
 
-    /* Accordion Customizado de Turmas (Forçado a iniciar fechado) */
     .card-turma {
       background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
@@ -95,6 +96,11 @@
     tr:last-child td { border-bottom: none; }
     tr:hover td { background-color: #f8fafc; }
 
+    .nome-aluno-clickable {
+      color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(30,64,175,0.3); text-underline-offset: 3px;
+    }
+    .nome-aluno-clickable:hover { color: var(--primary-hover); text-decoration-color: var(--primary-hover); }
+
     .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
     .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
 
@@ -103,6 +109,34 @@
 
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
+
+    /* MODAL DO ALUNO */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 999; justify-content: center; align-items: center; padding: 20px;
+    }
+    .modal-content {
+      background: white; border-radius: 12px; padding: 24px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); position: relative;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+
+    /* ÁREA DE IMPRESSÃO EXCLUSIVA */
+    #print-container { display: none; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #print-container, #print-container * { visibility: visible; }
+      #print-container {
+        display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; color: black; font-family: 'Times New Roman', serif;
+      }
+      .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 24px; }
+      .print-header h2 { font-size: 18px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
+      .print-header p { font-size: 12px; margin-bottom: 2px; }
+      .print-title { text-align: center; font-size: 16px; font-weight: bold; text-transform: uppercase; margin: 20px 0; letter-spacing: 1px; text-decoration: underline; }
+      .print-box { border: 1px solid #000; padding: 15px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; }
+      .print-signatures { display: flex; justify-content: space-between; margin-top: 80px; text-align: center; }
+      .print-signature-line { width: 45%; border-top: 1px solid #000; pt: 5px; font-size: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -149,7 +183,6 @@
             <span id="total-alunos-badge" class="badge-count">0 alunos</span>
           </div>
 
-          <!-- FILTROS -->
           <div class="toolbar">
             <input type="text" id="aluno-search" placeholder="🔎 Buscar aluno pelo nome..." oninput="filtrarEAgruparAlunos()">
             <select id="filter-serie" onchange="filtrarEAgruparAlunos()">
@@ -160,7 +193,6 @@
             </select>
           </div>
 
-          <!-- CADASTRO MANUAL -->
           <details class="form-accordion">
             <summary>+ Cadastrar Novo Aluno</summary>
             <div class="grid3" style="margin-top: 12px;">
@@ -180,7 +212,6 @@
             <button type="button" class="btn btn-primary btn-sm" onclick="adicionarAlunoManual()">Salvar Aluno</button>
           </details>
 
-          <!-- IMPORTAÇÃO EM LOTE -->
           <details class="form-accordion">
             <summary>🔄 Importar Alunos em Lote</summary>
             <div style="margin-top: 12px;">
@@ -192,7 +223,6 @@
           </details>
         </div>
 
-        <!-- CONTAINER COM AS TURMAS 100% FECHADAS POR PADRÃO -->
         <div id="lista-agrupada-container">
           <p style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando alunos e agrupando por turma...</p>
         </div>
@@ -201,7 +231,7 @@
       <!-- ABA 2: OCORRÊNCIAS -->
       <div id="panel-ocorrencias" class="tab-panel">
         <div class="card">
-          <h3 style="margin-bottom: 16px;">Registrar Ocorrência</h3>
+          <h3 style="margin-bottom: 16px;">Registrar Ocorrência / Convocação</h3>
           <form id="form-ocorrencia" onsubmit="salvarOcorrencia(event)">
             <div class="grid2">
               <div>
@@ -213,8 +243,8 @@
               <div>
                 <label>Tipo de Registro</label>
                 <select id="oc-tipo" required>
-                  <option value="Ocorrência">Ocorrência Disciplinar</option>
                   <option value="Convocação">Convocação de Responsável</option>
+                  <option value="Ocorrência">Ocorrência Disciplinar</option>
                   <option value="Suspensão">Notificação de Suspensão</option>
                 </select>
               </div>
@@ -233,16 +263,16 @@
               <label>Descrição Detalhada</label>
               <textarea id="oc-descricao" rows="4" placeholder="Relate o ocorrido..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">+ Registrar Ficha</button>
+            <button type="submit" class="btn btn-primary">+ Registrar e Salvar Ficha</button>
           </form>
         </div>
       </div>
 
-      <!-- ABA 3: HISTÓRICO -->
+      <!-- ABA 3: HISTÓRICO DE FICHAS -->
       <div id="panel-historico" class="tab-panel">
         <div class="card">
           <h3 style="margin-bottom: 16px;">Histórico de Fichas</h3>
-          <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+          <div style="border: 1px solid var(--border); border-radius: 8px; overflow-x: auto;">
             <table>
               <thead>
                 <tr>
@@ -264,6 +294,108 @@
     </div>
   </div>
 
+  <!-- MODAL DE GERENCIAMENTO DO ALUNO (EDITAR / CONVOCAR / IMPRIMIR) -->
+  <div id="modal-aluno" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-aluno-titulo">Gerenciar Aluno</h3>
+        <button class="modal-close" onclick="fecharModalAluno()">✕</button>
+      </div>
+      
+      <!-- ABAS INTERNAS DO MODAL -->
+      <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <button class="btn btn-sm btn-primary" onclick="mudarAbaModal('editar')">✏️ Editar Dados</button>
+        <button class="btn btn-sm btn-success" onclick="mudarAbaModal('convocar')">📝 Convocação/Ficha</button>
+      </div>
+
+      <!-- PAINEL 1: EDITAR -->
+      <div id="modal-panel-editar">
+        <form onsubmit="salvarEdicaoAluno(event)">
+          <input type="hidden" id="edit-aluno-id">
+          <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" id="edit-aluno-nome" required>
+          </div>
+          <div class="grid2">
+            <div class="form-group">
+              <label>Série / Ano</label>
+              <input type="text" id="edit-aluno-serie">
+            </div>
+            <div class="form-group">
+              <label>Turma / Sala</label>
+              <input type="text" id="edit-aluno-turma">
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+            <button type="button" class="btn btn-danger btn-sm" onclick="deletarAlunoModal()">Excluir Aluno</button>
+            <button type="submit" class="btn btn-primary btn-sm">Salvar Alterações</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PAINEL 2: CONVOCAR RÁPIDO -->
+      <div id="modal-panel-convocar" style="display: none;">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Efetuar uma nova convocação ou registro para este aluno:</p>
+        <div class="form-group">
+          <label>Tipo de Registro</label>
+          <select id="modal-oc-tipo">
+            <option value="Convocação">Convocação de Responsável</option>
+            <option value="Ocorrência">Ocorrência Disciplinar</option>
+            <option value="Suspensão">Notificação de Suspensão</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Motivo Resumido</label>
+          <input type="text" id="modal-oc-motivo" placeholder="Ex: Comparecer à coordenação">
+        </div>
+        <div class="form-group">
+          <label>Descrição Detalhada</label>
+          <textarea id="modal-oc-descricao" rows="3" placeholder="Informações do atendimento ou convocação..."></textarea>
+        </div>
+        <button type="button" class="btn btn-success" style="width: 100%;" onclick="salvarOcorrenciaDiretaModal()">Salvar Registro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTAINER DE IMPRESSÃO OFICIAL -->
+  <div id="print-container">
+    <div class="print-header">
+      <h2>E.M.T.I Estevão Alves da Rocha</h2>
+      <p>Código Inep: 23224550 · Baturité / CE</p>
+      <p>Secretaria Escolar / Núcleo Gestor</p>
+    </div>
+
+    <div class="print-title" id="print-doc-title">TERMO DE CONVOCAÇÃO DE RESPONSÁVEL</div>
+
+    <div class="print-box">
+      <p><strong>ALUNO(A):</strong> <span id="print-aluno-nome"></span></p>
+      <p><strong>SÉRIE/TURMA:</strong> <span id="print-aluno-turma"></span></p>
+      <p><strong>DATA DO REGISTRO:</strong> <span id="print-data"></span></p>
+      <p><strong>TIPO DE REGISTRO:</strong> <span id="print-tipo"></span></p>
+    </div>
+
+    <div class="print-box">
+      <p><strong>MOTIVO / ASSUNTO:</strong></p>
+      <p id="print-motivo" style="margin-bottom: 12px; font-weight: bold;"></p>
+      
+      <p><strong>DESCRIÇÃO / OBSERVAÇÕES:</strong></p>
+      <p id="print-descricao"></p>
+    </div>
+
+    <div style="margin-top: 30px; font-size: 13px; text-align: justify; line-height: 1.5;">
+      Solicitamos o comparecimento do responsável legal do(a) aluno(a) supracitado(a) à sede desta instituição de ensino para tratarmos de assuntos referentes ao acompanhamento pedagógico e/ou disciplinar do estudante.
+    </div>
+
+    <div class="print-signatures">
+      <div class="print-signature-line">
+        Assinatura do Responsável
+      </div>
+      <div class="print-signature-line">
+        Direção / Coordenação Escolar
+      </div>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://zahngevflevnmiencpgz.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable__CzDA-jZIMMJ4RU7yjTrig_r2LBYERj';
@@ -277,6 +409,7 @@
 
     let listaAlunos = [];
     let listaHistorico = [];
+    let alunoSelecionadoModal = null;
 
     function mudarAba(nomeAba) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -296,7 +429,6 @@
       }
     }
 
-    /* Função manual para alternar visualização da turma ao clicar */
     function toggleTurma(header) {
       const body = header.nextElementSibling;
       const arrow = header.querySelector('.arrow-icon');
@@ -309,7 +441,7 @@
       }
     }
 
-    /* ============ CARREGAR E AGRUPAR ALUNOS (INICIAM FECHADOS) ============ */
+    /* ============ CARREGAR E AGRUPAR ALUNOS ============ */
     async function carregarAlunosDoSupabase() {
       if (!supabaseClient) return;
 
@@ -377,7 +509,6 @@
         return;
       }
 
-      // Agrupamento por Série e Turma
       const grupos = {};
       alunos.forEach(aluno => {
         const serie = aluno.serie ? aluno.serie.trim() : 'Sem Série';
@@ -411,14 +542,18 @@
               <table>
                 <thead>
                   <tr>
-                    <th style="width: 80%;">Nome Completo</th>
-                    <th style="width: 20%; text-align: right;">Ações</th>
+                    <th style="width: 75%;">Nome Completo (Clique para Gerenciar)</th>
+                    <th style="width: 25%; text-align: right;">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${listaDaTurma.map(aluno => `
                     <tr>
-                      <td><strong>${aluno.nome || ''}</strong></td>
+                      <td>
+                        <span class="nome-aluno-clickable" onclick="abrirModalAluno('${aluno.id}')">
+                          ${aluno.nome || ''}
+                        </span>
+                      </td>
                       <td style="text-align: right;">
                         <button class="btn btn-danger btn-sm" onclick="deletarAluno('${aluno.id}')">Excluir</button>
                       </td>
@@ -433,16 +568,115 @@
       });
     }
 
-    /* ============ AÇÕES DE CADASTRO E REMOÇÃO ============ */
+    /* ============ MODAL DO ALUNO (EDITAR / CONVOCAR) ============ */
+    function abrirModalAluno(alunoId) {
+      const aluno = listaAlunos.find(a => a.id === alunoId);
+      if (!aluno) return;
+
+      alunoSelecionadoModal = aluno;
+      document.getElementById('modal-aluno-titulo').innerText = aluno.nome;
+      document.getElementById('edit-aluno-id').value = aluno.id;
+      document.getElementById('edit-aluno-nome').value = aluno.nome || '';
+      document.getElementById('edit-aluno-serie').value = aluno.serie || '';
+      document.getElementById('edit-aluno-turma').value = aluno.turma || '';
+
+      mudarAbaModal('editar');
+      document.getElementById('modal-aluno').style.display = 'flex';
+    }
+
+    function fecharModalAluno() {
+      document.getElementById('modal-aluno').style.display = 'none';
+      alunoSelecionadoModal = null;
+    }
+
+    function mudarAbaModal(aba) {
+      if (aba === 'editar') {
+        document.getElementById('modal-panel-editar').style.display = 'block';
+        document.getElementById('modal-panel-convocar').style.display = 'none';
+      } else {
+        document.getElementById('modal-panel-editar').style.display = 'none';
+        document.getElementById('modal-panel-convocar').style.display = 'block';
+      }
+    }
+
+    async function salvarEdicaoAluno(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-aluno-id').value;
+      const nome = document.getElementById('edit-aluno-nome').value.trim();
+      const serie = document.getElementById('edit-aluno-serie').value.trim();
+      const turma = document.getElementById('edit-aluno-turma').value.trim();
+
+      const { error } = await supabaseClient.from('alunos').update({ nome, serie, turma }).eq('id', id);
+
+      if (error) {
+        alert('Erro ao atualizar: ' + error.message);
+      } else {
+        alert('Dados do aluno atualizados!');
+        fecharModalAluno();
+        carregarAlunosDoSupabase();
+      }
+    }
+
+    async function deletarAlunoModal() {
+      if (!alunoSelecionadoModal) return;
+      if (confirm(`Excluir permanentemente o aluno ${alunoSelecionadoModal.nome}?`)) {
+        await deletarAluno(alunoSelecionadoModal.id);
+        fecharModalAluno();
+      }
+    }
+
+    async function salvarOcorrenciaDiretaModal() {
+      if (!alunoSelecionadoModal) return;
+
+      const tipo = document.getElementById('modal-oc-tipo').value;
+      const motivo = document.getElementById('modal-oc-motivo').value.trim();
+      const descricao = document.getElementById('modal-oc-descricao').value.trim();
+
+      if (!motivo || !descricao) return alert('Preencha o motivo e a descrição.');
+
+      const novaOcorrencia = {
+        aluno_id: alunoSelecionadoModal.id,
+        aluno_nome: alunoSelecionadoModal.nome,
+        aluno_serie: alunoSelecionadoModal.serie,
+        aluno_turma: alunoSelecionadoModal.turma,
+        tipo: tipo,
+        data: new Date().toISOString().split('T')[0],
+        motivo: motivo,
+        descricao: descricao
+      };
+
+      const { data, error } = await supabaseClient.from('ocorrencias').insert([novaOcorrencia]).select();
+      if (error) {
+        alert('Erro ao salvar registro: ' + error.message);
+      } else {
+        alert('Registro salvo com sucesso!');
+        fecharModalAluno();
+        if (data && data.length > 0) {
+          imprimirDocumento(data[0]);
+        }
+      }
+    }
+
+    /* ============ IMPRESSÃO DE FICHAS E DOCUMENTOS ============ */
+    function imprimirDocumento(item) {
+      document.getElementById('print-doc-title').innerText = item.tipo ? item.tipo.toUpperCase() : 'FICHA DO ALUNO';
+      document.getElementById('print-aluno-nome').innerText = item.aluno_nome || '-';
+      document.getElementById('print-aluno-turma').innerText = `${item.aluno_serie || ''} ${item.aluno_turma || ''}`;
+      document.getElementById('print-data').innerText = item.data ? new Date(item.data).toLocaleDateString('pt-BR') : '-';
+      document.getElementById('print-tipo').innerText = item.tipo || '-';
+      document.getElementById('print-motivo').innerText = item.motivo || '-';
+      document.getElementById('print-descricao').innerText = item.descricao || '-';
+
+      window.print();
+    }
+
+    /* ============ AÇÕES DE CADASTRO E REMOÇÃO DE ALUNOS ============ */
     async function adicionarAlunoManual() {
       const nomeInput = document.getElementById('add-aluno-nome');
       const serieInput = document.getElementById('add-aluno-serie');
       const turmaInput = document.getElementById('add-aluno-turma');
 
-      if (!nomeInput.value.trim()) {
-        alert('Digite o nome do aluno.');
-        return;
-      }
+      if (!nomeInput.value.trim()) return alert('Digite o nome do aluno.');
 
       const novoAluno = {
         nome: nomeInput.value.trim(),
@@ -451,9 +685,8 @@
       };
 
       const { error } = await supabaseClient.from('alunos').insert([novoAluno]);
-      if (error) {
-        alert('Erro ao salvar: ' + error.message);
-      } else {
+      if (error) alert('Erro ao salvar: ' + error.message);
+      else {
         alert('Aluno adicionado!');
         nomeInput.value = ''; serieInput.value = ''; turmaInput.value = '';
         carregarAlunosDoSupabase();
@@ -480,9 +713,8 @@
       }
 
       const { error } = await supabaseClient.from('alunos').insert(novosAlunos);
-      if (error) {
-        alert('Erro na importação: ' + error.message);
-      } else {
+      if (error) alert('Erro na importação: ' + error.message);
+      else {
         alert(`${novosAlunos.length} aluno(s) importado(s)!`);
         textarea.value = '';
         carregarAlunosDoSupabase();
@@ -525,13 +757,16 @@
         descricao: document.getElementById('oc-descricao').value.trim()
       };
 
-      const { error } = await supabaseClient.from('ocorrencias').insert([novaOcorrencia]);
+      const { data, error } = await supabaseClient.from('ocorrencias').insert([novaOcorrencia]).select();
       if (error) {
         alert('Erro ao salvar: ' + error.message);
       } else {
         alert('Registrado com sucesso!');
         document.getElementById('form-ocorrencia').reset();
         mudarAba('historico');
+        if (data && data.length > 0) {
+          imprimirDocumento(data[0]);
+        }
       }
     }
 
@@ -541,7 +776,7 @@
 
       const { data, error } = await supabaseClient.from('ocorrencias').select('*').order('data', { ascending: false });
       if (error) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Tabela "ocorrencias" não encontrada.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Erro ao carregar histórico.</td></tr>';
         return;
       }
 
@@ -549,7 +784,7 @@
       tbody.innerHTML = '';
 
       if (listaHistorico.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Nenhum registro.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Nenhum registro encontrado.</td></tr>';
         return;
       }
 
@@ -560,7 +795,8 @@
           <td><strong>${item.aluno_nome || '-'}</strong></td>
           <td><span class="badge-count">${item.tipo}</span></td>
           <td>${item.motivo || '-'}</td>
-          <td style="text-align: right;">
+          <td style="text-align: right; display: flex; gap: 6px; justify-content: flex-end;">
+            <button class="btn btn-primary btn-sm" onclick='imprimirDocumento(${JSON.stringify(item)})'>🖨️ Imprimir</button>
             <button class="btn btn-danger btn-sm" onclick="deletarOcorrencia('${item.id}')">Excluir</button>
           </td>
         `;
