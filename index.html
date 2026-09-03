@@ -206,6 +206,7 @@
   .doc-numero-mini{text-align:center;font-size:.6rem;font-weight:700;color:#555;letter-spacing:.5px;margin-bottom:3px;}
   .doc-via-mini{text-align:center;font-size:.66rem;color:#555;letter-spacing:.5px;margin-top:-2px;margin-bottom:6px;text-transform:uppercase;font-weight:600;}
   .doc-mini-recibo{border-width:1.5px;border-style:dashed;background:#fafafa;}
+  .doc-mini-recibo .sig-row-mini{margin-top:26px;}
   .doc-mini-recibo .doc-h1-mini{font-size:1.05rem;letter-spacing:1px;}
   .doc-mini-recibo .doc-via-mini{font-weight:700;color:#333;}
 
@@ -1376,7 +1377,7 @@ function convocacaoHtml(dados){
     <div class="doc-p"><span class="doc-strong">RESPONSÁVEL PELO(A) ALUNO(A):</span> <span class="doc-strong">${escapeHtml(dados.nome)}${dados.serieTurma?', '+escapeHtml(dados.serieTurma):''}.</span></div>
     <div class="doc-p">Cumprindo a Lei 9.394/90 (LDB), art. 12, e o ECA, art. 129, inciso V, que preveem a articulação entre escola e família no acompanhamento da frequência e do rendimento escolar, solicitamos sua presença na Escola no dia <span class="doc-strong">${fmtData(dados.data)}</span>, no horário de <span class="doc-strong">${dados.hora||'____'}</span> horas, para tratarmos de assunto referente ao aluno(a) citado acima. Somos parceiros na tarefa de educar.</div>
     <div class="doc-p">Ciente do comunicado acima e do compromisso de comparecer à escola na data e horário indicados.</div>
-    <div class="sig-row"><div class="sig-col">Coordenador(a) Pedagógico(a)</div><div class="sig-col">Responsável pelo aluno(a)</div><div class="sig-col">Aluno(a)</div></div>
+    <div class="sig-row"><div class="sig-col">Coordenador(a) Pedagógico(a)</div><div class="sig-col">Aluno(a)</div></div>
   </div>`;
   const recibo = `
   <div class="doc-mini doc-mini-recibo">
