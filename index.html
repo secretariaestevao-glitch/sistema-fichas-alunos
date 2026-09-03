@@ -76,20 +76,17 @@
     .toolbar input { flex: 2; min-width: 220px; }
     .toolbar select { flex: 1; min-width: 150px; }
 
-    /* Accordion de Turmas */
-    details.card-turma {
+    /* Accordion Customizado de Turmas (Forçado a iniciar fechado) */
+    .card-turma {
       background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    details.card-turma summary {
-      background: #eff6ff; padding: 14px 20px; border-bottom: 1px solid transparent; display: flex; justify-content: space-between; align-items: center; color: var(--primary); cursor: pointer; user-select: none; transition: background 0.2s;
+    .turma-header {
+      background: #eff6ff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; color: var(--primary); cursor: pointer; user-select: none; transition: background 0.2s;
     }
-    details.card-turma[open] summary {
-      border-bottom-color: var(--border);
-    }
-    details.card-turma summary:hover { background: #dbeafe; }
-    details.card-turma summary::-webkit-details-marker { display: none; }
-    
-    .turma-title-text { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
+    .turma-header:hover { background: #dbeafe; }
+    .turma-body { display: none; border-top: 1px solid var(--border); }
+
+    .turma-title-text { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
     .badge-count { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
 
     table { width: 100%; border-collapse: collapse; }
@@ -195,7 +192,7 @@
           </details>
         </div>
 
-        <!-- CONTAINER COM AS TURMAS FECHADAS POR PADRÃO -->
+        <!-- CONTAINER COM AS TURMAS 100% FECHADAS POR PADRÃO -->
         <div id="lista-agrupada-container">
           <p style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando alunos e agrupando por turma...</p>
         </div>
@@ -299,6 +296,19 @@
       }
     }
 
+    /* Função manual para alternar visualização da turma ao clicar */
+    function toggleTurma(header) {
+      const body = header.nextElementSibling;
+      const arrow = header.querySelector('.arrow-icon');
+      if (body.style.display === 'none' || !body.style.display) {
+        body.style.display = 'block';
+        if (arrow) arrow.innerText = '▼';
+      } else {
+        body.style.display = 'none';
+        if (arrow) arrow.innerText = '▶';
+      }
+    }
+
     /* ============ CARREGAR E AGRUPAR ALUNOS (INICIAM FECHADOS) ============ */
     async function carregarAlunosDoSupabase() {
       if (!supabaseClient) return;
@@ -384,40 +394,42 @@
         const listaDaTurma = grupos[nomeGrupo];
         listaDaTurma.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
 
-        // Elemento details (SEM a propriedade open)
-        const details = document.createElement('details');
-        details.className = 'card-turma';
+        const card = document.createElement('div');
+        card.className = 'card-turma';
 
-        details.innerHTML = `
-          <summary>
+        card.innerHTML = `
+          <div class="turma-header" onclick="toggleTurma(this)">
             <div class="turma-title-text">
-              <span style="font-size: 16px;">📁</span>
+              <span class="arrow-icon" style="font-size: 11px;">▶</span>
+              <span style="font-size: 16px;">📂</span>
               <span>${nomeGrupo}</span>
             </div>
             <span class="badge-count">${listaDaTurma.length} aluno(s)</span>
-          </summary>
-          <div style="overflow-x: auto;">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 80%;">Nome Completo</th>
-                  <th style="width: 20%; text-align: right;">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${listaDaTurma.map(aluno => `
+          </div>
+          <div class="turma-body">
+            <div style="overflow-x: auto;">
+              <table>
+                <thead>
                   <tr>
-                    <td><strong>${aluno.nome || ''}</strong></td>
-                    <td style="text-align: right;">
-                      <button class="btn btn-danger btn-sm" onclick="deletarAluno('${aluno.id}')">Excluir</button>
-                    </td>
+                    <th style="width: 80%;">Nome Completo</th>
+                    <th style="width: 20%; text-align: right;">Ações</th>
                   </tr>
-                `).join('')}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  ${listaDaTurma.map(aluno => `
+                    <tr>
+                      <td><strong>${aluno.nome || ''}</strong></td>
+                      <td style="text-align: right;">
+                        <button class="btn btn-danger btn-sm" onclick="deletarAluno('${aluno.id}')">Excluir</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
         `;
-        container.appendChild(details);
+        container.appendChild(card);
       });
     }
 
