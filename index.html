@@ -11,29 +11,22 @@
       --primary-hover: #1d4ed8;
       --bg: #f8fafc;
       --card-bg: #ffffff;
-      --text-main: #0f172a;
+      --text: #0f172a;
       --text-muted: #64748b;
       --border: #e2e8f0;
       --danger: #ef4444;
       --danger-hover: #dc2626;
-      --badge-bg: #e0e7ff;
-      --badge-text: #3730a3;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); padding: 24px; display: flex; justify-content: center; min-height: 100vh; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
 
     .container { width: 100%; max-width: 1100px; }
 
     /* Login */
     #login-screen {
-      background: var(--card-bg);
-      padding: 32px;
-      border-radius: 12px;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-      max-width: 400px;
-      margin: 80px auto;
-      border: 1px solid var(--border);
+      background: var(--card-bg); padding: 32px; border-radius: 12px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); max-width: 400px; margin: 80px auto; border: 1px solid var(--border);
     }
     #login-screen h2 { color: var(--primary); font-size: 22px; margin-bottom: 6px; text-align: center; }
     #login-screen p { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; text-align: center; }
@@ -52,7 +45,7 @@
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-danger { background: var(--danger); color: white; }
     .btn-danger:hover { background: var(--danger-hover); }
-    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
 
     #login-error { color: var(--danger); font-size: 13px; margin-top: 12px; text-align: center; font-weight: 500; }
 
@@ -76,32 +69,30 @@
       background: var(--card-bg); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;
     }
 
-    /* Filtros e Busca Organizada */
-    .filter-bar {
-      display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+    /* Barra de Pesquisa e Filtros */
+    .toolbar {
+      display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; background: #f1f5f9; padding: 14px; border-radius: 10px; border: 1px solid var(--border);
     }
-    .filter-bar input { flex: 2; min-width: 200px; }
-    .filter-bar select { flex: 1; min-width: 140px; }
+    .toolbar input { flex: 2; min-width: 220px; }
+    .toolbar select { flex: 1; min-width: 150px; }
 
-    /* Container de Tabela com Rolagem e Cabeçalho Fixo */
-    .table-container {
-      max-height: 520px;
-      overflow-y: auto;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #fff;
+    /* Grupo de Turmas */
+    .turma-group {
+      border: 1px solid var(--border); border-radius: 8px; background: #fff; margin-bottom: 14px; overflow: hidden;
     }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; }
-    th {
-      position: sticky; top: 0; background: #f8fafc; color: #334155; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 16px; border-bottom: 2px solid var(--border); z-index: 2; text-align: left;
+    .turma-header {
+      padding: 12px 16px; background: #f8fafc; font-weight: 700; color: var(--primary); font-size: 15px;
+      cursor: pointer; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
     }
-    td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; }
-    tr:nth-child(even) { background-color: #f8fafc; }
-    tr:hover { background-color: #f1f5f9; }
+    .turma-header:hover { background: #f1f5f9; }
+    .badge-count { background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
 
-    .tag-badge {
-      display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: var(--badge-bg); color: var(--badge-text);
-    }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #fff; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 16px; border-bottom: 1px solid var(--border); text-align: left; }
+    td { padding: 10px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background-color: #fafafa; }
+
     .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
     .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
 
@@ -143,27 +134,24 @@
 
       <!-- ABAS -->
       <div class="nav-tabs">
-        <button class="tab-btn active" onclick="mudarAba('alunos')">👤 Alunos</button>
+        <button class="tab-btn active" onclick="mudarAba('alunos')">👤 Alunos por Turma</button>
         <button class="tab-btn" onclick="mudarAba('ocorrencias')">📝 Nova Ocorrência</button>
         <button class="tab-btn" onclick="mudarAba('historico')">📋 Histórico</button>
       </div>
 
-      <!-- ABA 1: ALUNOS -->
+      <!-- ABA 1: ALUNOS AGRUPADOS -->
       <div id="panel-alunos" class="tab-panel active">
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3>Lista de Alunos</h3>
-            <span id="alunos-counter" class="tag-badge">0 alunos</span>
+            <h3>Organização Geral de Alunos</h3>
+            <span id="total-alunos-badge" class="badge-count">0 alunos</span>
           </div>
 
-          <!-- BARRA DE FILTROS E BUSCA -->
-          <div class="filter-bar">
-            <input type="text" id="aluno-search" placeholder="🔍 Buscar por nome do aluno..." oninput="filtrarAlunos()">
-            <select id="filter-serie" onchange="filtrarAlunos()">
-              <option value="">Todas as Séries</option>
-            </select>
-            <select id="filter-turma" onchange="filtrarAlunos()">
-              <option value="">Todas as Turmas</option>
+          <!-- BARRA DE BUSCA E FILTRO -->
+          <div class="toolbar">
+            <input type="text" id="aluno-search" placeholder="🔎 Buscar aluno pelo nome..." oninput="filtrarEAgruparAlunos()">
+            <select id="filter-turma" onchange="filtrarEAgruparAlunos()">
+              <option value="">Filtrar por Série/Turma...</option>
             </select>
           </div>
 
@@ -195,25 +183,12 @@
               <input type="file" id="importar-arquivo" accept=".csv, .txt" style="margin-bottom: 10px;">
               <textarea id="importar-texto" rows="3" placeholder="Ex:&#10;Maria Eduarda;5º Ano;A"></textarea>
               <button type="button" class="btn btn-primary btn-sm" style="margin-top: 8px;" onclick="importarEmLote()">Processar Importação</button>
-              <p id="importar-status" style="font-size: 12px; margin-top: 6px;"></p>
             </div>
           </details>
 
-          <!-- TABELA ORGANIZADA COM CABEÇALHO FIXO -->
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 50%;">Nome Completo</th>
-                  <th style="width: 20%;">Série</th>
-                  <th style="width: 15%;">Turma</th>
-                  <th style="width: 15%; text-align: right;">Ações</th>
-                </tr>
-              </thead>
-              <tbody id="tabela-alunos-body">
-                <tr><td colspan="4" style="text-align:center; padding: 24px;">Carregando alunos...</td></tr>
-              </tbody>
-            </table>
+          <!-- LISTA AGRUPADA POR TURMA -->
+          <div id="lista-agrupada-container" style="margin-top: 20px;">
+            <p style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando e organizando turmas...</p>
           </div>
         </div>
       </div>
@@ -262,7 +237,7 @@
       <div id="panel-historico" class="tab-panel">
         <div class="card">
           <h3 style="margin-bottom: 16px;">Histórico de Fichas</h3>
-          <div class="table-container">
+          <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
             <table>
               <thead>
                 <tr>
@@ -316,12 +291,15 @@
       }
     }
 
+    /* ============ CARREGAR E ORGANIZAR ALUNOS POR TURMA ============ */
     async function carregarAlunosDoSupabase() {
       if (!supabaseClient) return;
 
       const { data, error } = await supabaseClient
         .from('alunos')
         .select('*')
+        .order('serie', { ascending: true })
+        .order('turma', { ascending: true })
         .order('nome', { ascending: true });
 
       if (error) {
@@ -330,63 +308,95 @@
       }
 
       listaAlunos = data || [];
-      popularFiltros();
-      filtrarAlunos();
+      popularFiltroTurmas();
+      filtrarEAgruparAlunos();
     }
 
-    function popularFiltros() {
-      const selectSerie = document.getElementById('filter-serie');
-      const selectTurma = document.getElementById('filter-turma');
+    function popularFiltroTurmas() {
+      const select = document.getElementById('filter-turma');
+      const gruposUnicos = [...new Set(listaAlunos.map(a => `${a.serie || 'Sem Série'} - Turma ${a.turma || 'Geral'}`))].sort();
 
-      const series = [...new Set(listaAlunos.map(a => a.serie).filter(Boolean))].sort();
-      const turmas = [...new Set(listaAlunos.map(a => a.turma).filter(Boolean))].sort();
-
-      selectSerie.innerHTML = '<option value="">Todas as Séries</option>' + series.map(s => `<option value="${s}">${s}</option>`).join('');
-      selectTurma.innerHTML = '<option value="">Todas as Turmas</option>' + turmas.map(t => `<option value="${t}">${t}</option>`).join('');
+      select.innerHTML = '<option value="">Todas as Séries e Turmas</option>' +
+        gruposUnicos.map(g => `<option value="${g}">${g}</option>`).join('');
     }
 
-    function filtrarAlunos() {
+    function filtrarEAgruparAlunos() {
       const termo = document.getElementById('aluno-search').value.toLowerCase().trim();
-      const serieSel = document.getElementById('filter-serie').value;
-      const turmaSel = document.getElementById('filter-turma').value;
+      const filtroTurma = document.getElementById('filter-turma').value;
 
       const filtrados = listaAlunos.filter(a => {
-        const bateNome = (a.nome || '').toLowerCase().includes(termo);
-        const bateSerie = !serieSel || a.serie === serieSel;
-        const bateTurma = !turmaSel || a.turma === turmaSel;
-        return bateNome && bateSerie && bateTurma;
+        const nomeChave = (a.nome || '').toLowerCase();
+        const grupoChave = `${a.serie || 'Sem Série'} - Turma ${a.turma || 'Geral'}`;
+        const bateNome = nomeChave.includes(termo);
+        const bateTurma = !filtroTurma || grupoChave === filtroTurma;
+        return bateNome && bateTurma;
       });
 
-      renderizarTabelaAlunos(filtrados);
+      renderizarBlocosDeTurmas(filtrados);
     }
 
-    function renderizarTabelaAlunos(alunos) {
-      const tbody = document.getElementById('tabela-alunos-body');
-      const counter = document.getElementById('alunos-counter');
-      if (!tbody) return;
+    function renderizarBlocosDeTurmas(alunos) {
+      const container = document.getElementById('lista-agrupada-container');
+      const counter = document.getElementById('total-alunos-badge');
+      if (!container) return;
 
       counter.innerText = `${alunos.length} aluno(s)`;
-      tbody.innerHTML = '';
+      container.innerHTML = '';
 
       if (alunos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 24px; color: var(--text-muted);">Nenhum aluno encontrado.</td></tr>';
+        container.innerHTML = '<p style="text-align:center; padding: 30px; color: var(--text-muted);">Nenhum aluno encontrado.</p>';
         return;
       }
 
+      // Agrupamento por Série e Turma
+      const grupos = {};
       alunos.forEach(aluno => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${aluno.nome || ''}</strong></td>
-          <td><span class="tag-badge">${aluno.serie || '-'}</span></td>
-          <td>${aluno.turma || '-'}</td>
-          <td style="text-align: right;">
-            <button class="btn btn-danger btn-sm" onclick="deletarAluno('${aluno.id}')">Excluir</button>
-          </td>
+        const serie = aluno.serie ? aluno.serie.trim() : 'Sem Série';
+        const turma = aluno.turma ? aluno.turma.trim() : 'Geral';
+        const chaveGrupo = `${serie} — Turma ${turma}`;
+
+        if (!grupos[chaveGrupo]) grupos[chaveGrupo] = [];
+        grupos[chaveGrupo].push(aluno);
+      });
+
+      // Renderizar cada turma em um accordion/bloco próprio
+      Object.keys(grupos).sort().forEach(nomeGrupo => {
+        const alunosDoGrupo = grupos[nomeGrupo];
+        alunosDoGrupo.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+
+        const details = document.createElement('details');
+        details.className = 'turma-group';
+        details.open = true;
+
+        details.innerHTML = `
+          <summary class="turma-header">
+            <span>📁 ${nomeGrupo}</span>
+            <span class="badge-count">${alunosDoGrupo.length} aluno(s)</span>
+          </summary>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 80%;">Nome do Aluno</th>
+                <th style="width: 20%; text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${alunosDoGrupo.map(aluno => `
+                <tr>
+                  <td><strong>${aluno.nome || ''}</strong></td>
+                  <td style="text-align: right;">
+                    <button class="btn btn-danger btn-sm" onclick="deletarAluno('${aluno.id}')">Excluir</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         `;
-        tbody.appendChild(tr);
+        container.appendChild(details);
       });
     }
 
+    /* ============ AÇÕES DE CADASTRO E REMOÇÃO ============ */
     async function adicionarAlunoManual() {
       const nomeInput = document.getElementById('add-aluno-nome');
       const serieInput = document.getElementById('add-aluno-serie');
@@ -448,9 +458,11 @@
       if (!error) carregarAlunosDoSupabase();
     }
 
+    /* ============ OCORRÊNCIAS E HISTÓRICO ============ */
     function carregarAlunosParaSelect() {
       const select = document.getElementById('oc-aluno-select');
       select.innerHTML = '<option value="">-- Selecione o Aluno --</option>';
+      
       listaAlunos.forEach(aluno => {
         const opt = document.createElement('option');
         opt.value = JSON.stringify({ id: aluno.id, nome: aluno.nome, serie: aluno.serie, turma: aluno.turma });
@@ -506,7 +518,7 @@
         tr.innerHTML = `
           <td>${item.data ? new Date(item.data).toLocaleDateString('pt-BR') : '-'}</td>
           <td><strong>${item.aluno_nome || '-'}</strong></td>
-          <td><span class="tag-badge">${item.tipo}</span></td>
+          <td><span class="badge-count">${item.tipo}</span></td>
           <td>${item.motivo || '-'}</td>
           <td style="text-align: right;">
             <button class="btn btn-danger btn-sm" onclick="deletarOcorrencia('${item.id}')">Excluir</button>
@@ -522,6 +534,7 @@
       if (!error) carregarHistoricoDoSupabase();
     }
 
+    /* ============ LOGIN ============ */
     async function fazerLogin() {
       const cpf = document.getElementById('login-cpf').value.trim();
       const senha = document.getElementById('login-senha').value.trim();
