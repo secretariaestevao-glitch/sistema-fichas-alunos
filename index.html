@@ -547,6 +547,45 @@
 </div>
 
 <script>
+  let listaAlunos = []; // Variável global para armazenar os alunos
+
+async function carregarAlunosDoSupabase() {
+  const statusEl = document.getElementById('alunos-status');
+  if (statusEl) statusEl.innerText = 'Carregando alunos do Supabase...';
+
+  const { data, error } = await supabaseClient
+    .from('alunos')
+    .select('*')
+    .order('nome', { ascending: true });
+
+  if (error) {
+    console.error('Erro ao carregar alunos:', error.message);
+    if (statusEl) statusEl.innerText = 'Erro ao carregar do banco de dados.';
+    return;
+  }
+
+  listaAlunos = data || [];
+  if (statusEl) statusEl.innerText = `${listaAlunos.length} aluno(s) carregado(s).`;
+}
+
+async function salvarListaAlunosNoSupabase(novosAlunosArray) {
+  const statusEl = document.getElementById('importar-status');
+  if (statusEl) statusEl.innerText = 'Enviando alunos para o Supabase...';
+
+  const { data, error } = await supabaseClient
+    .from('alunos')
+    .insert(novosAlunosArray);
+
+  if (error) {
+    console.error('Erro ao importar para o Supabase:', error.message);
+    if (statusEl) statusEl.innerText = 'Erro ao importar: ' + error.message;
+    alert('Erro ao salvar no banco de dados: ' + error.message);
+  } else {
+    if (statusEl) statusEl.innerText = 'Lista importada e salva com sucesso no Supabase!';
+    alert('Alunos importados com sucesso!');
+    carregarAlunosDoSupabase();
+  }
+}
 /* ============ AUTENTICAÇÃO (Supabase) ============ */
 // Chaves públicas do projeto Supabase (anon key) — seguras para expor no navegador;
 // a segurança real dos dados depende das políticas de RLS configuradas nas tabelas.
@@ -613,11 +652,36 @@ async function fazerLogout() {
   location.reload();
 }
 
+let listaAlunos = []; // Variável global para armazenar os alunos
+
+async function carregarAlunosDoSupabase() {
+  const statusEl = document.getElementById('alunos-status');
+  if (statusEl) statusEl.innerText = 'Carregando alunos do Supabase...';
+
+  const { data, error } = await supabaseClient
+    .from('alunos')
+    .select('*')
+    .order('nome', { ascending: true });
+
+  if (error) {
+    console.error('Erro ao carregar alunos:', error.message);
+    if (statusEl) statusEl.innerText = 'Erro ao carregar do banco de dados.';
+    return;
+  }
+
+  listaAlunos = data || [];
+  if (statusEl) statusEl.innerText = `${listaAlunos.length} aluno(s) carregado(s).`;
+  
+  // Se houver uma função para desenhar a árvore na sua tela, chame-a aqui:
+  // renderizarArvore(listaAlunos);
+}
+
 function liberarSistema() {
   const loginScreen = document.getElementById('login-screen');
   const sistemaContainer = document.getElementById('sistema-container');
   if (loginScreen) loginScreen.style.display = 'none';
   if (sistemaContainer) sistemaContainer.style.display = 'block';
+  carregarAlunosDoSupabase();
 }
 
 // verifica sessão ativa ao abrir a página (evita pedir login de novo a cada visita)
