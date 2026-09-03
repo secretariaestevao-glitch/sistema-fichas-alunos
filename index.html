@@ -586,6 +586,103 @@ async function salvarListaAlunosNoSupabase(novosAlunosArray) {
     carregarAlunosDoSupabase();
   }
 }
+  // Listener para o botão de importar em lote
+document.addEventListener('DOMContentLoaded', () => {
+  const btnImportar = document.getElementById('btn-importar-lista');
+  if (btnImportar) {
+    btnImportar.addEventListener('click', () => {
+      const texto = document.getElementById('importar-texto').value.trim();
+      if (!texto) {
+        alert('Cole a lista de alunos no campo de texto antes de importar.');
+        return;
+      }
+
+      // Separa o texto por linhas
+      const linhas = texto.split('\n');
+      const novosAlunos = [];
+
+      for (let linha of linhas) {
+        linha = linha.trim();
+        if (!linha) continue;
+
+        // Aceita separador por ponto e vírgula, vírgula ou TAB
+        const partes = linha.split(/;|,|\t/);
+        if (partes.length >= 3) {
+          const nome = partes[0].trim();
+          const serie = partes[1].trim();
+          const turma = partes[2].trim();
+
+          // Ignora linhas administrativas comuns
+          const upperNome = nome.toUpperCase();
+          if (upperNome.includes('TRANSFERIDA') || upperNome.includes('FALECIDO') || upperNome.includes('TRANSFERIDO')) {
+            continue;
+          }
+
+          if (nome && serie && turma) {
+            novosAlunos.push({ nome, serie, turma });
+          }
+        }
+      }
+
+      if (novosAlunos.length === 05) { // wait, 0? Let's fix that typo if any: length === 0
+        // Listener para o botão de importar em lote
+document.addEventListener('DOMContentLoaded', () => {
+  const btnImportar = document.getElementById('btn-importar-lista');
+  if (btnImportar) {
+    btnImportar.addEventListener('click', () => {
+      const texto = document.getElementById('importar-texto').value.trim();
+      if (!texto) {
+        alert('Cole a lista de alunos no campo de texto antes de importar.');
+        return;
+      }
+
+      const linhas = texto.split('\n');
+      const novosAlunos = [];
+
+      for (let linha of linhas) {
+        linha = linha.trim();
+        if (!linha) continue;
+
+        const partes = linha.split(/;|,|\t/);
+        if (partes.length >= 3) {
+          const nome = partes[0].trim();
+          const serie = partes[1].trim();
+          const turma = partes[2].trim();
+
+          const upperNome = nome.toUpperCase();
+          if (upperNome.includes('TRANSFERIDA') || upperNome.includes('FALECIDO') || upperNome.includes('TRANSFERIDO')) {
+            continue;
+          }
+
+          if (nome && serie && turma) {
+            novosAlunos.push({ nome, serie, turma });
+          }
+        }
+      }
+
+      if (novosAlunos.length === 0) {
+        alert('Nenhum aluno válido encontrado. Verifique o formato Nome;Série;Turma.');
+        return;
+      }
+
+      // Chama a função que envia para o Supabase
+      salvarListaAlunosNoSupabase(novosAlunos);
+    });
+  }
+});
+// Função para salvar Ocorrências no Supabase
+async function salvarOcorrenciaNoSupabase(dadosOcorrencia) {
+  const { data, error } = await supabaseClient
+    .from('ocorrencias') // Certifique-se de que a tabela no Supabase chama 'ocorrencias'
+    .insert([dadosOcorrencia]);
+
+  if (error) {
+    console.error('Erro ao salvar ocorrência:', error.message);
+    alert('Erro ao registrar ocorrência no banco de dados.');
+  } else {
+    alert('Ficha de ocorrência salva com segurança na nuvem!');
+  }
+}
 /* ============ AUTENTICAÇÃO (Supabase) ============ */
 // Chaves públicas do projeto Supabase (anon key) — seguras para expor no navegador;
 // a segurança real dos dados depende das políticas de RLS configuradas nas tabelas.
