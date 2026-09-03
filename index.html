@@ -537,17 +537,7 @@
 </div>
 
 <!-- =================== MODAL DE DETALHE DO HISTÓRICO =================== -->
-<div class="acoes-overlay" id="detalhe-overlay">
-  <div class="acoes-modal" style="max-width:420px;text-align:left;">
-    <div class="acoes-nome" id="detalhe-nome" style="text-align:center;"></div>
-    <div class="acoes-sub" id="detalhe-sub" style="text-align:center;"></div>
-    <div id="detalhe-lista" style="max-height:320px;overflow-y:auto;margin:10px 0;"></div>
-    <button class="btn btn-secondary acoes-btn" id="detalhe-fechar">Fechar</button>
-  </div>
-</div>
-
-<script>
-  let listaAlunos = []; // Variável global para armazenar os alunos
+let listaAlunos = [];
 
 async function carregarAlunosDoSupabase() {
   const statusEl = document.getElementById('alunos-status');
@@ -586,46 +576,20 @@ async function salvarListaAlunosNoSupabase(novosAlunosArray) {
     carregarAlunosDoSupabase();
   }
 }
-  // Listener para o botão de importar em lote
-document.addEventListener('DOMContentLoaded', () => {
-  const btnImportar = document.getElementById('btn-importar-lista');
-  if (btnImportar) {
-    btnImportar.addEventListener('click', () => {
-      const texto = document.getElementById('importar-texto').value.trim();
-      if (!texto) {
-        alert('Cole a lista de alunos no campo de texto antes de importar.');
-        return;
-      }
 
-      // Separa o texto por linhas
-      const linhas = texto.split('\n');
-      const novosAlunos = [];
+async function salvarOcorrenciaNoSupabase(dadosOcorrencia) {
+  const { data, error } = await supabaseClient
+    .from('ocorrencias')
+    .insert([dadosOcorrencia]);
 
-      for (let linha of linhas) {
-        linha = linha.trim();
-        if (!linha) continue;
+  if (error) {
+    console.error('Erro ao salvar ocorrência:', error.message);
+    alert('Erro ao registrar ocorrência no banco de dados.');
+  } else {
+    alert('Ficha de ocorrência salva com segurança na nuvem!');
+  }
+}
 
-        // Aceita separador por ponto e vírgula, vírgula ou TAB
-        const partes = linha.split(/;|,|\t/);
-        if (partes.length >= 3) {
-          const nome = partes[0].trim();
-          const serie = partes[1].trim();
-          const turma = partes[2].trim();
-
-          // Ignora linhas administrativas comuns
-          const upperNome = nome.toUpperCase();
-          if (upperNome.includes('TRANSFERIDA') || upperNome.includes('FALECIDO') || upperNome.includes('TRANSFERIDO')) {
-            continue;
-          }
-
-          if (nome && serie && turma) {
-            novosAlunos.push({ nome, serie, turma });
-          }
-        }
-      }
-
-      if (novosAlunos.length === 05) { // wait, 0? Let's fix that typo if any: length === 0
-        // Listener para o botão de importar em lote
 document.addEventListener('DOMContentLoaded', () => {
   const btnImportar = document.getElementById('btn-importar-lista');
   if (btnImportar) {
@@ -665,24 +629,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Chama a função que envia para o Supabase
       salvarListaAlunosNoSupabase(novosAlunos);
     });
   }
 });
-// Função para salvar Ocorrências no Supabase
-async function salvarOcorrenciaNoSupabase(dadosOcorrencia) {
-  const { data, error } = await supabaseClient
-    .from('ocorrencias') // Certifique-se de que a tabela no Supabase chama 'ocorrencias'
-    .insert([dadosOcorrencia]);
-
-  if (error) {
-    console.error('Erro ao salvar ocorrência:', error.message);
-    alert('Erro ao registrar ocorrência no banco de dados.');
-  } else {
-    alert('Ficha de ocorrência salva com segurança na nuvem!');
-  }
-}
+  
 // Captura genérica do botão de gerar ocorrência pelo texto do botão ou classe
 document.addEventListener('click', (e) => {
   // Verifica se o elemento clicado é um botão de gerar/salvar ocorrência
