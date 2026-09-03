@@ -69,29 +69,28 @@
       background: var(--card-bg); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;
     }
 
-    /* Barra de Pesquisa e Filtros */
+    /* Toolbar de filtros */
     .toolbar {
-      display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; background: #f1f5f9; padding: 14px; border-radius: 10px; border: 1px solid var(--border);
+      display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid var(--border);
     }
     .toolbar input { flex: 2; min-width: 220px; }
     .toolbar select { flex: 1; min-width: 150px; }
 
-    /* Grupo de Turmas */
-    .turma-group {
-      border: 1px solid var(--border); border-radius: 8px; background: #fff; margin-bottom: 14px; overflow: hidden;
+    /* Bloco Visual de cada Turma */
+    .card-turma {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    .turma-header {
-      padding: 12px 16px; background: #f8fafc; font-weight: 700; color: var(--primary); font-size: 15px;
-      cursor: pointer; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+    .turma-header-title {
+      background: #eff6ff; padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--primary);
     }
-    .turma-header:hover { background: #f1f5f9; }
-    .badge-count { background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .turma-header-title strong { font-size: 16px; font-weight: 700; }
+    .badge-count { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
 
     table { width: 100%; border-collapse: collapse; }
-    th { background: #fff; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 16px; border-bottom: 1px solid var(--border); text-align: left; }
-    td { padding: 10px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    th { background: #f8fafc; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 16px; border-bottom: 1px solid var(--border); text-align: left; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background-color: #fafafa; }
+    tr:hover td { background-color: #f8fafc; }
 
     .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
     .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
@@ -143,19 +142,22 @@
       <div id="panel-alunos" class="tab-panel active">
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3>Organização Geral de Alunos</h3>
+            <h3>Lista Geral de Alunos</h3>
             <span id="total-alunos-badge" class="badge-count">0 alunos</span>
           </div>
 
-          <!-- BARRA DE BUSCA E FILTRO -->
+          <!-- FILTROS -->
           <div class="toolbar">
             <input type="text" id="aluno-search" placeholder="🔎 Buscar aluno pelo nome..." oninput="filtrarEAgruparAlunos()">
+            <select id="filter-serie" onchange="filtrarEAgruparAlunos()">
+              <option value="">Todas as Séries</option>
+            </select>
             <select id="filter-turma" onchange="filtrarEAgruparAlunos()">
-              <option value="">Filtrar por Série/Turma...</option>
+              <option value="">Todas as Turmas</option>
             </select>
           </div>
 
-          <!-- ADICIONAR ALUNO MANUALMENTE -->
+          <!-- CADASTRO MANUAL -->
           <details>
             <summary>+ Cadastrar Novo Aluno</summary>
             <div class="grid3" style="margin-top: 12px;">
@@ -165,11 +167,11 @@
               </div>
               <div>
                 <label style="font-size: 12px; font-weight: 600;">Série / Ano</label>
-                <input type="text" id="add-aluno-serie" placeholder="Ex: 5º Ano">
+                <input type="text" id="add-aluno-serie" placeholder="Ex: 4º Ano">
               </div>
               <div>
                 <label style="font-size: 12px; font-weight: 600;">Turma / Sala</label>
-                <input type="text" id="add-aluno-turma" placeholder="Ex: A">
+                <input type="text" id="add-aluno-turma" placeholder="Ex: F">
               </div>
             </div>
             <button type="button" class="btn btn-primary btn-sm" onclick="adicionarAlunoManual()">Salvar Aluno</button>
@@ -179,17 +181,17 @@
           <details>
             <summary>🔄 Importar Alunos em Lote</summary>
             <div style="margin-top: 12px;">
-              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Cole o texto no formato: <strong>Nome;Série;Turma</strong></p>
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Cole no formato: <strong>Nome;Série;Turma</strong></p>
               <input type="file" id="importar-arquivo" accept=".csv, .txt" style="margin-bottom: 10px;">
-              <textarea id="importar-texto" rows="3" placeholder="Ex:&#10;Maria Eduarda;5º Ano;A"></textarea>
+              <textarea id="importar-texto" rows="3" placeholder="Ex:&#10;Abraão Ferreira;4º Ano;F"></textarea>
               <button type="button" class="btn btn-primary btn-sm" style="margin-top: 8px;" onclick="importarEmLote()">Processar Importação</button>
             </div>
           </details>
+        </div>
 
-          <!-- LISTA AGRUPADA POR TURMA -->
-          <div id="lista-agrupada-container" style="margin-top: 20px;">
-            <p style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando e organizando turmas...</p>
-          </div>
+        <!-- CONTAINER ONDE OS BLOCOS DAS TURMAS SÃO GERADOS -->
+        <div id="lista-agrupada-container">
+          <p style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando alunos e agrupando por turma...</p>
         </div>
       </div>
 
@@ -291,7 +293,7 @@
       }
     }
 
-    /* ============ CARREGAR E ORGANIZAR ALUNOS POR TURMA ============ */
+    /* ============ CARREGAR E AGRUPAR ALUNOS POR SÉRIE E TURMA ============ */
     async function carregarAlunosDoSupabase() {
       if (!supabaseClient) return;
 
@@ -308,34 +310,45 @@
       }
 
       listaAlunos = data || [];
-      popularFiltroTurmas();
+      popularFiltrosSelect();
       filtrarEAgruparAlunos();
     }
 
-    function popularFiltroTurmas() {
-      const select = document.getElementById('filter-turma');
-      const gruposUnicos = [...new Set(listaAlunos.map(a => `${a.serie || 'Sem Série'} - Turma ${a.turma || 'Geral'}`))].sort();
+    function popularFiltrosSelect() {
+      const selectSerie = document.getElementById('filter-serie');
+      const selectTurma = document.getElementById('filter-turma');
 
-      select.innerHTML = '<option value="">Todas as Séries e Turmas</option>' +
-        gruposUnicos.map(g => `<option value="${g}">${g}</option>`).join('');
+      const series = [...new Set(listaAlunos.map(a => a.serie ? a.serie.trim() : 'Sem Série'))].sort();
+      const turmas = [...new Set(listaAlunos.map(a => a.turma ? a.turma.trim() : 'Geral'))].sort();
+
+      selectSerie.innerHTML = '<option value="">Todas as Séries</option>' +
+        series.map(s => `<option value="${s}">${s}</option>`).join('');
+
+      selectTurma.innerHTML = '<option value="">Todas as Turmas</option>' +
+        turmas.map(t => `<option value="${t}">Turma ${t}</option>`).join('');
     }
 
     function filtrarEAgruparAlunos() {
       const termo = document.getElementById('aluno-search').value.toLowerCase().trim();
+      const filtroSerie = document.getElementById('filter-serie').value;
       const filtroTurma = document.getElementById('filter-turma').value;
 
       const filtrados = listaAlunos.filter(a => {
-        const nomeChave = (a.nome || '').toLowerCase();
-        const grupoChave = `${a.serie || 'Sem Série'} - Turma ${a.turma || 'Geral'}`;
-        const bateNome = nomeChave.includes(termo);
-        const bateTurma = !filtroTurma || grupoChave === filtroTurma;
-        return bateNome && bateTurma;
+        const nome = (a.nome || '').toLowerCase();
+        const serie = (a.serie || 'Sem Série').trim();
+        const turma = (a.turma || 'Geral').trim();
+
+        const bateNome = nome.includes(termo);
+        const bateSerie = !filtroSerie || serie === filtroSerie;
+        const bateTurma = !filtroTurma || turma === filtroTurma;
+
+        return bateNome && bateSerie && bateTurma;
       });
 
-      renderizarBlocosDeTurmas(filtrados);
+      renderizarTurmasSeparadas(filtrados);
     }
 
-    function renderizarBlocosDeTurmas(alunos) {
+    function renderizarTurmasSeparadas(alunos) {
       const container = document.getElementById('lista-agrupada-container');
       const counter = document.getElementById('total-alunos-badge');
       if (!container) return;
@@ -344,11 +357,11 @@
       container.innerHTML = '';
 
       if (alunos.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding: 30px; color: var(--text-muted);">Nenhum aluno encontrado.</p>';
+        container.innerHTML = '<div class="card" style="text-align:center; padding: 30px; color: var(--text-muted);">Nenhum aluno encontrado.</div>';
         return;
       }
 
-      // Agrupamento por Série e Turma
+      // Agrupamento por chave única (Série + Turma)
       const grupos = {};
       alunos.forEach(aluno => {
         const serie = aluno.serie ? aluno.serie.trim() : 'Sem Série';
@@ -359,40 +372,46 @@
         grupos[chaveGrupo].push(aluno);
       });
 
-      // Renderizar cada turma em um accordion/bloco próprio
-      Object.keys(grupos).sort().forEach(nomeGrupo => {
-        const alunosDoGrupo = grupos[nomeGrupo];
-        alunosDoGrupo.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+      // Ordena alfabeticamente os grupos
+      const gruposOrdenados = Object.keys(grupos).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
-        const details = document.createElement('details');
-        details.className = 'turma-group';
-        details.open = true;
+      gruposOrdenados.forEach(nomeGrupo => {
+        const listaDaTurma = grupos[nomeGrupo];
+        listaDaTurma.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
 
-        details.innerHTML = `
-          <summary class="turma-header">
-            <span>📁 ${nomeGrupo}</span>
-            <span class="badge-count">${alunosDoGrupo.length} aluno(s)</span>
-          </summary>
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 80%;">Nome do Aluno</th>
-                <th style="width: 20%; text-align: right;">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${alunosDoGrupo.map(aluno => `
+        const card = document.createElement('div');
+        card.className = 'card-turma';
+
+        card.innerHTML = `
+          <div class="turma-header-title">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size: 18px;">📁</span>
+              <strong>${nomeGrupo}</strong>
+            </div>
+            <span class="badge-count">${listaDaTurma.length} aluno(s)</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
                 <tr>
-                  <td><strong>${aluno.nome || ''}</strong></td>
-                  <td style="text-align: right;">
-                    <button class="btn btn-danger btn-sm" onclick="deletarAluno('${aluno.id}')">Excluir</button>
-                  </td>
+                  <th style="width: 80%;">Nome Completo</th>
+                  <th style="width: 20%; text-align: right;">Ações</th>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                ${listaDaTurma.map(aluno => `
+                  <tr>
+                    <td><strong>${aluno.nome || ''}</strong></td>
+                    <td style="text-align: right;">
+                      <button class="btn btn-danger btn-sm" onclick="deletarAluno('${aluno.id}')">Excluir</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
         `;
-        container.appendChild(details);
+        container.appendChild(card);
       });
     }
 
@@ -462,7 +481,7 @@
     function carregarAlunosParaSelect() {
       const select = document.getElementById('oc-aluno-select');
       select.innerHTML = '<option value="">-- Selecione o Aluno --</option>';
-      
+
       listaAlunos.forEach(aluno => {
         const opt = document.createElement('option');
         opt.value = JSON.stringify({ id: aluno.id, nome: aluno.nome, serie: aluno.serie, turma: aluno.turma });
@@ -503,7 +522,10 @@
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Carregando histórico...</td></tr>';
 
       const { data, error } = await supabaseClient.from('ocorrencias').select('*').order('data', { ascending: false });
-      if (error) return;
+      if (error) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Tabela "ocorrencias" não encontrada ou sem dados.</td></tr>';
+        return;
+      }
 
       listaHistorico = data || [];
       tbody.innerHTML = '';
