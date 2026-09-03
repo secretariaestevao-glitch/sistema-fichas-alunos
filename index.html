@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Fichas — E.M.T.I. Estevão Alves da Rocha</title>
-  <!-- CDN da biblioteca do Supabase JS v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -15,67 +14,91 @@
       --text: #1f2937;
       --border: #e5e7eb;
       --danger: #dc2626;
+      --success: #16a34a;
+      --warning: #d97706;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
 
-    .container { width: 100%; max-width: 900px; }
+    .container { width: 100%; max-width: 1000px; }
 
-    /* Tela de Login */
+    /* Login */
     #login-screen {
       background: var(--card-bg);
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
       max-width: 400px;
-      margin: 50px auto;
+      margin: 60px auto;
       text-align: center;
     }
-    #login-screen h2 { color: var(--primary); margin-bottom: 5px; }
-    #login-screen p { color: #6b7280; font-size: 14px; margin-bottom: 20px; }
+    #login-screen h2 { color: var(--primary); margin-bottom: 6px; font-size: 22px; }
+    #login-screen p { color: #6b7280; font-size: 13px; margin-bottom: 20px; }
 
     .form-group { text-align: left; margin-bottom: 15px; }
-    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; }
-    .form-group input, input[type="text"], input[type="password"], textarea, select {
-      width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px;
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #374151; }
+    input[type="text"], input[type="password"], input[type="date"], textarea, select {
+      width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: #fff; outline: none; transition: border-color 0.2s;
     }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary); }
 
     .btn {
-      padding: 10px 16px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; transition: 0.2s;
+      padding: 10px 16px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .btn-primary { background: var(--primary); color: white; width: 100%; }
+    .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-danger { background: var(--danger); color: white; }
-    .btn-secondary { background: #6b7280; color: white; }
-    .btn-sm { padding: 6px 12px; font-size: 12px; width: auto; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-secondary { background: #4b5563; color: white; }
+    .btn-secondary:hover { background: #374151; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
 
     #login-error { color: var(--danger); font-size: 13px; margin-top: 10px; }
 
-    /* Sistema Principal */
+    /* Main Container */
     #sistema-container { display: none; width: 100%; }
 
     .header-nav {
       display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px 20px;
-      border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px;
     }
     .header-title h1 { font-size: 18px; color: var(--primary); }
     .header-title p { font-size: 12px; color: #6b7280; }
+
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn {
+      padding: 10px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; color: #4b5563; transition: 0.2s;
+    }
+    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
     .card {
       background: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;
     }
 
-    .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 10px; }
+    .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 15px; }
+    .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px; }
     
     details { background: #f9fafb; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px; }
-    summary { font-weight: 600; cursor: pointer; color: var(--primary); }
+    summary { font-weight: 600; cursor: pointer; color: var(--primary); font-size: 14px; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-    th { background: #f9fafb; font-size: 13px; color: #4b5563; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { background: #f9fafb; font-size: 12px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    .search-box { margin-bottom: 15px; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-ocorrencia { background: #fef3c7; color: #92400e; }
+    .badge-convocacao { background: #e0e7ff; color: #3730a3; }
+    .badge-suspensao { background: #fee2e2; color: #991b1b; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .header-nav, .nav-tabs, .btn, details, .search-box, th:last-child, td:last-child { display: none !important; }
+      .card { box-shadow: none; padding: 0; border: none; }
+    }
   </style>
 </head>
 <body>
@@ -86,14 +109,14 @@
       <h2>Entrar no Sistema</h2>
       <p>E.M.T.I Estevão Alves da Rocha</p>
       <div class="form-group">
-        <label>CPF (apenas números)</label>
+        <label for="login-cpf">CPF (apenas números)</label>
         <input type="text" id="login-cpf" placeholder="Digite seu CPF">
       </div>
       <div class="form-group">
-        <label>Senha</label>
+        <label for="login-senha">Senha</label>
         <input type="password" id="login-senha" placeholder="Digite sua senha">
       </div>
-      <button class="btn btn-primary" onclick="fazerLogin()">Entrar</button>
+      <button class="btn btn-primary" style="width: 100%;" onclick="fazerLogin()">Entrar</button>
       <div id="login-error"></div>
     </div>
 
@@ -107,67 +130,147 @@
         <button class="btn btn-danger btn-sm" onclick="fazerLogout()">Sair</button>
       </div>
 
-      <!-- PAINEL DE ALUNOS -->
-      <div class="card">
-        <h3>Alunos por Série e Turma</h3>
-        <p id="alunos-status" style="font-size: 13px; color: #6b7280; margin: 8px 0 15px 0;">Carregando alunos...</p>
-
-        <!-- BUSCA -->
-        <div class="search-box">
-          <input type="text" id="aluno-search" placeholder="🔎 Buscar aluno pelo nome..." oninput="filtrarAlunos()">
-        </div>
-
-        <!-- ADICIONAR ALUNO MANUALMENTE -->
-        <details open>
-          <summary>+ Adicionar aluno manualmente</summary>
-          <div class="grid3" style="margin-top: 12px;">
-            <div>
-              <label>Nome completo</label>
-              <input type="text" id="add-aluno-nome" placeholder="Ex: João da Silva">
-            </div>
-            <div>
-              <label>Série / Ano</label>
-              <input type="text" id="add-aluno-serie" placeholder="Ex: 5º Ano">
-            </div>
-            <div>
-              <label>Turma / Sala</label>
-              <input type="text" id="add-aluno-turma" placeholder="Ex: A">
-            </div>
-          </div>
-          <button type="button" class="btn btn-primary btn-sm" style="margin-top: 10px;" onclick="adicionarAlunoManual()">+ Salvar Aluno</button>
-        </details>
-
-        <!-- IMPORTAR LISTA EM LOTE -->
-        <details>
-          <summary>🔄 Atualizar lista de alunos (em lote)</summary>
-          <div style="margin-top: 12px;">
-            <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Envie um arquivo CSV/TXT ou cole abaixo no formato <strong>Nome;Série;Turma</strong></p>
-            <input type="file" id="importar-arquivo" accept=".csv, .txt" style="margin-bottom: 10px;">
-            <textarea id="importar-texto" rows="4" placeholder="Ex:&#10;João da Silva Souza;5º Ano;A&#10;Maria Eduarda Lima;5º Ano;A"></textarea>
-            <button type="button" class="btn btn-primary btn-sm" style="margin-top: 10px;" onclick="importarEmLote()">Importar / Atualizar Lista</button>
-            <p id="importar-status" style="font-size: 12px; margin-top: 5px;"></p>
-          </div>
-        </details>
-
-        <!-- TABELA DE ALUNOS -->
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Série</th>
-              <th>Turma</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tabela-alunos-body">
-            <tr><td colspan="4" style="text-align:center;">Carregando dados...</td></tr>
-          </tbody>
-        </table>
+      <!-- NAVEGAÇÃO POR ABAS -->
+      <div class="nav-tabs">
+        <button class="tab-btn active" onclick="mudarAba('alunos')">👤 Alunos</button>
+        <button class="tab-btn" onclick="mudarAba('ocorrencias')">📝 Nova Ocorrência</button>
+        <button class="tab-btn" onclick="mudarAba('historico')">📋 Histórico</button>
       </div>
+
+      <!-- ABA 1: ALUNOS -->
+      <div id="panel-alunos" class="tab-panel active">
+        <div class="card">
+          <h3>Alunos por Série e Turma</h3>
+          <p id="alunos-status" style="font-size: 13px; color: #6b7280; margin: 8px 0 15px 0;">Carregando alunos...</p>
+
+          <div style="margin-bottom: 15px;">
+            <input type="text" id="aluno-search" placeholder="🔎 Buscar aluno pelo nome..." oninput="filtrarAlunos()">
+          </div>
+
+          <!-- ADICIONAR ALUNO MANUALMENTE -->
+          <details>
+            <summary>+ Adicionar aluno manualmente</summary>
+            <div class="grid3" style="margin-top: 12px;">
+              <div>
+                <label style="font-size: 12px; font-weight: 600;">Nome completo</label>
+                <input type="text" id="add-aluno-nome" placeholder="Ex: João da Silva">
+              </div>
+              <div>
+                <label style="font-size: 12px; font-weight: 600;">Série / Ano</label>
+                <input type="text" id="add-aluno-serie" placeholder="Ex: 5º Ano">
+              </div>
+              <div>
+                <label style="font-size: 12px; font-weight: 600;">Turma / Sala</label>
+                <input type="text" id="add-aluno-turma" placeholder="Ex: A">
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="adicionarAlunoManual()">+ Salvar Aluno</button>
+          </details>
+
+          <!-- IMPORTAR LISTA EM LOTE -->
+          <details>
+            <summary>🔄 Atualizar lista de alunos (em lote)</summary>
+            <div style="margin-top: 12px;">
+              <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Envie um arquivo CSV/TXT ou cole abaixo no formato <strong>Nome;Série;Turma</strong></p>
+              <input type="file" id="importar-arquivo" accept=".csv, .txt" style="margin-bottom: 10px;">
+              <textarea id="importar-texto" rows="4" placeholder="Ex:&#10;João da Silva Souza;5º Ano;A&#10;Maria Eduarda Lima;5º Ano;A"></textarea>
+              <button type="button" class="btn btn-primary btn-sm" style="margin-top: 10px;" onclick="importarEmLote()">Importar Lista</button>
+              <p id="importar-status" style="font-size: 12px; margin-top: 5px;"></p>
+            </div>
+          </details>
+
+          <!-- TABELA DE ALUNOS -->
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Série</th>
+                  <th>Turma</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-alunos-body">
+                <tr><td colspan="4" style="text-align:center;">Carregando dados...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 2: NOVA OCORRÊNCIA / FICHA -->
+      <div id="panel-ocorrencias" class="tab-panel">
+        <div class="card">
+          <h3>Registrar Ocorrência / Ficha Disciplinar</h3>
+          <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Preencha os dados abaixo para registrar uma infração, convocação ou suspensão.</p>
+
+          <form id="form-ocorrencia" onsubmit="salvarOcorrencia(event)">
+            <div class="grid2">
+              <div>
+                <label style="font-size: 13px; font-weight: 600;">Selecione o Aluno</label>
+                <select id="oc-aluno-select" required>
+                  <option value="">Carregando lista de alunos...</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 13px; font-weight: 600;">Tipo de Registro</label>
+                <select id="oc-tipo" required>
+                  <option value="Ocorrência">Ocorrência Disciplinar</option>
+                  <option value="Convocação">Convocação de Responsável</option>
+                  <option value="Suspensão">Notificação de Suspensão</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid2">
+              <div>
+                <label style="font-size: 13px; font-weight: 600;">Data do Fato</label>
+                <input type="date" id="oc-data" required>
+              </div>
+              <div>
+                <label style="font-size: 13px; font-weight: 600;">Motivo / Categoria</label>
+                <input type="text" id="oc-motivo" placeholder="Ex: Indisciplina em sala, Atraso, Conflito" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Descrição Detalhada dos Fatos</label>
+              <textarea id="oc-descricao" rows="5" placeholder="Relate detalhadamente o ocorrido..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">+ Registrar e Salvar Ficha</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ABA 3: HISTÓRICO -->
+      <div id="panel-historico" class="tab-panel">
+        <div class="card">
+          <h3>Histórico de Registros</h3>
+          <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Consulte ou imprima os registros lançados no sistema.</p>
+
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Aluno</th>
+                  <th>Tipo</th>
+                  <th>Motivo</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-historico-body">
+                <tr><td colspan="5" style="text-align:center;">Carregando histórico...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- JAVASCRIPT PRINCIPAL -->
   <script>
     /* ============ CONFIGURAÇÃO DO SUPABASE ============ */
     const SUPABASE_URL = 'https://zahngevflevnmiencpgz.supabase.co';
@@ -177,16 +280,34 @@
     try {
       if (typeof supabase !== 'undefined') {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      } else {
-        console.error('A biblioteca do Supabase não foi carregada corretamente.');
       }
     } catch (e) {
       console.error('Erro ao inicializar o Supabase:', e);
     }
 
     let listaAlunos = [];
+    let listaHistorico = [];
 
-    /* ============ CARREGAR E RENDERIZAR ALUNOS ============ */
+    /* ============ NAVEGAÇÃO DE ABAS ============ */
+    function mudarAba(nomeAba) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+
+      if (nomeAba === 'alunos') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('panel-alunos').classList.add('active');
+      } else if (nomeAba === 'ocorrencias') {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('panel-ocorrencias').classList.add('active');
+        carregarAlunosParaSelect();
+      } else if (nomeAba === 'historico') {
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
+        document.getElementById('panel-historico').classList.add('active');
+        carregarHistoricoDoSupabase();
+      }
+    }
+
+    /* ============ ALUNOS: CARREGAR E RENDERIZAR ============ */
     async function carregarAlunosDoSupabase() {
       const statusEl = document.getElementById('alunos-status');
       if (statusEl) statusEl.innerText = 'Carregando alunos do Supabase...';
@@ -203,13 +324,12 @@
 
       if (error) {
         console.error('Erro ao carregar alunos:', error.message);
-        if (statusEl) statusEl.innerText = 'Erro ao carregar do banco de dados: ' + error.message;
+        if (statusEl) statusEl.innerText = 'Erro ao carregar: ' + error.message;
         return;
       }
 
       listaAlunos = data || [];
       if (statusEl) statusEl.innerText = `${listaAlunos.length} aluno(s) carregado(s).`;
-      
       renderizarTabelaAlunos(listaAlunos);
     }
 
@@ -247,7 +367,7 @@
       renderizarTabelaAlunos(filtrados);
     }
 
-    /* ============ ADICIONAR ALUNO MANUALMENTE ============ */
+    /* ============ ALUNOS: ADICIONAR MANUALMENTE ============ */
     async function adicionarAlunoManual() {
       const nomeInput = document.getElementById('add-aluno-nome');
       const serieInput = document.getElementById('add-aluno-serie');
@@ -264,12 +384,11 @@
         turma: turmaInput ? turmaInput.value.trim() : ''
       };
 
-      const { data, error } = await supabaseClient
+      const { error } = await supabaseClient
         .from('alunos')
         .insert([novoAluno]);
 
       if (error) {
-        console.error('Erro ao adicionar aluno:', error.message);
         alert('Erro ao salvar aluno no Supabase: ' + error.message);
       } else {
         alert('Aluno adicionado com sucesso!');
@@ -280,14 +399,14 @@
       }
     }
 
-    /* ============ IMPORTAÇÃO EM LOTE ============ */
+    /* ============ ALUNOS: IMPORTAÇÃO EM LOTE ============ */
     async function importarEmLote() {
       const textarea = document.getElementById('importar-texto');
       const texto = textarea ? textarea.value.trim() : '';
       const statusEl = document.getElementById('importar-status');
 
       if (!texto) {
-        alert('Selecione um arquivo CSV ou cole a lista de alunos no campo de texto.');
+        alert('Cole a lista de alunos ou selecione um arquivo.');
         return;
       }
 
@@ -304,14 +423,10 @@
           const serie = partes[1] ? partes[1].trim() : '';
           const turma = partes[2] ? partes[2].trim() : '';
 
-          const upperNome = nome.toUpperCase();
-          if (upperNome.includes('TRANSFERIDA') || upperNome.includes('FALECIDO') || upperNome.includes('TRANSFERIDO') || upperNome.includes('NOME COMPLETO')) {
-            continue;
-          }
+          const upper = nome.toUpperCase();
+          if (upper.includes('TRANSFERID') || upper.includes('FALECID') || upper.includes('NOME COMPLETO')) continue;
 
-          if (nome) {
-            novosAlunos.push({ nome, serie, turma });
-          }
+          if (nome) novosAlunos.push({ nome, serie, turma });
         }
       }
 
@@ -320,25 +435,21 @@
         return;
       }
 
-      if (statusEl) statusEl.innerText = 'Enviando alunos para o Supabase...';
+      if (statusEl) statusEl.innerText = 'Enviando alunos para o banco de dados...';
 
-      const { data, error } = await supabaseClient
-        .from('alunos')
-        .insert(novosAlunos);
+      const { error } = await supabaseClient.from('alunos').insert(novosAlunos);
 
       if (error) {
-        console.error('Erro ao importar:', error.message);
         if (statusEl) statusEl.innerText = 'Erro ao importar: ' + error.message;
-        alert('Erro ao salvar no banco de dados: ' + error.message);
+        alert('Erro ao salvar: ' + error.message);
       } else {
-        if (statusEl) statusEl.innerText = 'Lista importada e salva com sucesso!';
+        if (statusEl) statusEl.innerText = 'Lista importada com sucesso!';
         alert(`${novosAlunos.length} aluno(s) importado(s) com sucesso!`);
         textarea.value = '';
         carregarAlunosDoSupabase();
       }
     }
 
-    /* ============ EXCLUIR ALUNO ============ */
     async function deletarAluno(id) {
       if (!confirm('Deseja realmente remover este aluno?')) return;
       const { error } = await supabaseClient.from('alunos').delete().eq('id', id);
@@ -349,23 +460,118 @@
       }
     }
 
+    /* ============ OCORRÊNCIAS ============ */
+    function carregarAlunosParaSelect() {
+      const select = document.getElementById('oc-aluno-select');
+      if (!select) return;
+
+      select.innerHTML = '<option value="">-- Selecione o Aluno --</option>';
+      listaAlunos.forEach(aluno => {
+        const opt = document.createElement('option');
+        opt.value = JSON.stringify({ id: aluno.id, nome: aluno.nome, serie: aluno.serie, turma: aluno.turma });
+        opt.textContent = `${aluno.nome} (${aluno.serie || '-'} ${aluno.turma || ''})`;
+        select.appendChild(opt);
+      });
+    }
+
+    async function salvarOcorrencia(e) {
+      e.preventDefault();
+      const alunoRaw = document.getElementById('oc-aluno-select').value;
+      const tipo = document.getElementById('oc-tipo').value;
+      const dataFato = document.getElementById('oc-data').value;
+      const motivo = document.getElementById('oc-motivo').value.trim();
+      const descricao = document.getElementById('oc-descricao').value.trim();
+
+      if (!alunoRaw || !dataFato || !motivo || !descricao) {
+        alert('Preencha todos os campos do formulário.');
+        return;
+      }
+
+      const alunoObj = JSON.parse(alunoRaw);
+
+      const novaOcorrencia = {
+        aluno_id: alunoObj.id,
+        aluno_nome: alunoObj.nome,
+        aluno_serie: alunoObj.serie,
+        aluno_turma: alunoObj.turma,
+        tipo: tipo,
+        data: dataFato,
+        motivo: motivo,
+        descricao: descricao
+      };
+
+      const { error } = await supabaseClient.from('ocorrencias').insert([novaOcorrencia]);
+
+      if (error) {
+        alert('Erro ao salvar ocorrência: ' + error.message);
+      } else {
+        alert('Ocorrência registrada com sucesso!');
+        document.getElementById('form-ocorrencia').reset();
+        mudarAba('historico');
+      }
+    }
+
+    async function carregarHistoricoDoSupabase() {
+      const tbody = document.getElementById('tabela-historico-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Carregando histórico...</td></tr>';
+
+      const { data, error } = await supabaseClient
+        .from('ocorrencias')
+        .select('*')
+        .order('data', { ascending: false });
+
+      if (error) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Erro ao carregar histórico.</td></tr>';
+        return;
+      }
+
+      listaHistorico = data || [];
+      tbody.innerHTML = '';
+
+      if (listaHistorico.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum registro encontrado.</td></tr>';
+        return;
+      }
+
+      listaHistorico.forEach(item => {
+        let badgeClass = 'badge-ocorrencia';
+        if (item.tipo === 'Convocação') badgeClass = 'badge-convocacao';
+        if (item.tipo === 'Suspensão') badgeClass = 'badge-suspensao';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.data ? new Date(item.data).toLocaleDateString('pt-BR') : '-'}</td>
+          <td><strong>${item.aluno_nome || '-'}</strong></td>
+          <td><span class="badge ${badgeClass}">${item.tipo || 'Ocorrência'}</span></td>
+          <td>${item.motivo || '-'}</td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deletarOcorrencia('${item.id}')">Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deletarOcorrencia(id) {
+      if (!confirm('Deseja realmente excluir este registro?')) return;
+      const { error } = await supabaseClient.from('ocorrencias').delete().eq('id', id);
+      if (error) {
+        alert('Erro ao excluir: ' + error.message);
+      } else {
+        carregarHistoricoDoSupabase();
+      }
+    }
+
     /* ============ AUTENTICAÇÃO ============ */
     async function fazerLogin() {
-      const cpfInput = document.getElementById('login-cpf');
-      const senhaInput = document.getElementById('login-senha');
+      const cpf = document.getElementById('login-cpf').value.trim();
+      const senha = document.getElementById('login-senha').value.trim();
       const erroEl = document.getElementById('login-error');
-      if (!cpfInput || !senhaInput || !erroEl) return;
-
-      const cpf = cpfInput.value.trim();
-      const senha = senhaInput.value.trim();
-      erroEl.innerText = '';
 
       if (!cpf || !senha) {
         erroEl.innerText = 'Preencha o CPF e a senha.';
-        return;
-      }
-      if (!supabaseClient) {
-        erroEl.innerText = 'Erro de conexão com o Supabase.';
         return;
       }
 
@@ -375,46 +581,43 @@
           email: emailFicticio,
           password: senha
         });
+
         if (error) {
-          console.error('Erro do Supabase:', error.message);
           erroEl.innerText = 'CPF ou senha incorretos.';
           return;
         }
+
         if (data && data.session) {
           liberarSistema();
-        } else {
-          erroEl.innerText = 'Não foi possível iniciar a sessão.';
         }
       } catch (err) {
-        console.error('Erro inesperado:', err);
-        erroEl.innerText = 'Ocorreu um erro ao tentar conectar.';
+        erroEl.innerText = 'Erro de conexão com o banco de dados.';
       }
     }
 
     async function fazerLogout() {
-      if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-      }
+      if (supabaseClient) await supabaseClient.auth.signOut();
       location.reload();
     }
 
     function liberarSistema() {
-      const loginScreen = document.getElementById('login-screen');
-      const sistemaContainer = document.getElementById('sistema-container');
-      if (loginScreen) loginScreen.style.display = 'none';
-      if (sistemaContainer) sistemaContainer.style.display = 'block';
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('sistema-container').style.display = 'block';
       carregarAlunosDoSupabase();
     }
 
     /* ============ INICIALIZAÇÃO ============ */
     document.addEventListener('DOMContentLoaded', () => {
+      // Definir data de hoje no campo de ocorrência por padrão
+      const hoje = new Date().toISOString().split('T')[0];
+      const dataInput = document.getElementById('oc-data');
+      if (dataInput) dataInput.value = hoje;
+
       // Verificar sessão ativa
       if (supabaseClient) {
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
           if (session) liberarSistema();
-        }).catch(err => {
-          console.error('Erro ao verificar sessão:', err);
-        });
+        }).catch(() => {});
       }
 
       // Leitor de arquivo local
@@ -425,9 +628,7 @@
           const file = e.target.files[0];
           if (!file) return;
           const reader = new FileReader();
-          reader.onload = (evt) => {
-            textarea.value = evt.target.result;
-          };
+          reader.onload = (evt) => { textarea.value = evt.target.result; };
           reader.readAsText(file, 'UTF-8');
         });
       }
