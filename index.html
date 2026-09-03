@@ -683,6 +683,35 @@ async function salvarOcorrenciaNoSupabase(dadosOcorrencia) {
     alert('Ficha de ocorrência salva com segurança na nuvem!');
   }
 }
+// Captura genérica do botão de gerar ocorrência pelo texto do botão ou classe
+document.addEventListener('click', (e) => {
+  // Verifica se o elemento clicado é um botão de gerar/salvar ocorrência
+  if (e.target && (e.target.innerText.includes('Gerar Ficha') || e.target.innerText.includes('Salvar Ocorrência') || e.target.id === 'btn-gerar-oc')) {
+    
+    // Pega os dados preenchidos na tela (ajuste os IDs conforme os campos do seu formulário)
+    const selectAluno = document.getElementById('select-aluno') || document.getElementById('aluno-selecionado');
+    const inputRelato = document.getElementById('relato-ocorrencia') || document.getElementById('texto-ocorrencia');
+
+    const alunoId = selectAluno ? selectAluno.value : null;
+    const relato = inputRelato ? inputRelato.value : '';
+
+    if (!alunoId || !relato) {
+      // Se os campos específicos não forem encontrados por ID, o sistema deixa passar 
+      // para o seu código original continuar funcionando normalmente.
+      return;
+    }
+
+    // Objeto que vai para a tabela 'ocorrencias' do Supabase
+    const dadosOcorrencia = {
+      aluno_id: alunoId,
+      descricao: relato,
+      data_registro: new Date().toISOString()
+    };
+
+    // Chama a função que salva no Supabase que criamos antes
+    salvarOcorrenciaNoSupabase(dadosOcorrencia);
+  }
+});
 /* ============ AUTENTICAÇÃO (Supabase) ============ */
 // Chaves públicas do projeto Supabase (anon key) — seguras para expor no navegador;
 // a segurança real dos dados depende das políticas de RLS configuradas nas tabelas.
