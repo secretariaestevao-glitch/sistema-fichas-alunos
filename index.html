@@ -593,7 +593,6 @@ async function adicionarAlunoManual() {
   const inputs = document.querySelectorAll('#panel-alunos input[type="text"], #sistema-container input[type="text"]');
   let nomeInput, serieInput, turmaInput;
 
-  // Busca os campos de entrada do formulário manual
   inputs.forEach(input => {
     const ph = (input.placeholder || '').toLowerCase();
     const id = (input.id || '').toLowerCase();
@@ -730,7 +729,6 @@ if (supabaseClient) {
 
 /* ============ INICIALIZAÇÃO DE EVENTOS ============ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Evento de Leitura do Arquivo CSV/TXT
   const fileInput = document.querySelector('input[type="file"]');
   const textarea = document.getElementById('importar-texto') || document.querySelector('textarea');
   
@@ -746,7 +744,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Evento do Botão Adicionar Aluno Manual
   const btnAdicionarManual = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Adicionar aluno'));
   if (btnAdicionarManual) {
     btnAdicionarManual.addEventListener('click', (e) => {
@@ -755,7 +752,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Evento do Botão Importar Lista em Lote
   const btnImportar = document.getElementById('btn-importar-lista') || Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Importar'));
   if (btnImportar) {
     btnImportar.addEventListener('click', (e) => {
