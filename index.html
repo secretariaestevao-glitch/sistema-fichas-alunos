@@ -524,6 +524,8 @@
 
 <script>
 /* ============ AUTENTICAÇÃO (Supabase) ============ */
+<script>
+/* ============ INICIALIZAÇÃO DO SUPABASE ============ */
 const SUPABASE_URL = 'https://zahngevflevnmiencpgz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__CzDA-jZIMMJ4RU7yjTrig_r2LBYERj';
 
@@ -537,9 +539,10 @@ try {
 } catch (e) {
   console.error('Erro ao inicializar o Supabase:', e);
 }
-<script>
+
 let listaAlunos = [];
 
+/* ============ CARREGAR E RENDERIZAR ALUNOS ============ */
 async function carregarAlunosDoSupabase() {
   const statusEl = document.getElementById('alunos-status');
   if (statusEl) statusEl.innerText = 'Carregando alunos do Supabase...';
@@ -557,8 +560,76 @@ async function carregarAlunosDoSupabase() {
 
   listaAlunos = data || [];
   if (statusEl) statusEl.innerText = `${listaAlunos.length} aluno(s) carregado(s).`;
+  
+  renderizarTabelaAlunos();
 }
 
+function renderizarTabelaAlunos() {
+  const tbody = document.getElementById('tabela-alunos-body') || document.querySelector('table.alunos tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  if (listaAlunos.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhum aluno cadastrado.</td></tr>';
+    return;
+  }
+
+  listaAlunos.forEach(aluno => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${aluno.nome}</strong></td>
+      <td>${aluno.serie || '-'}</td>
+      <td>${aluno.turma || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-danger" onclick="deletarAluno('${aluno.id}')">Excluir</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============ ADICIONAR ALUNO MANUALMENTE ============ */
+async function adicionarAlunoManual() {
+  const inputs = document.querySelectorAll('#panel-alunos input[type="text"], #sistema-container input[type="text"]');
+  let nomeInput, serieInput, turmaInput;
+
+  // Busca os campos de entrada do formulário manual
+  inputs.forEach(input => {
+    const ph = (input.placeholder || '').toLowerCase();
+    const id = (input.id || '').toLowerCase();
+    if (ph.includes('nome') || id.includes('nome')) nomeInput = input;
+    else if (ph.includes('série') || ph.includes('serie') || id.includes('serie')) serieInput = input;
+    else if (ph.includes('turma') || id.includes('turma')) turmaInput = input;
+  });
+
+  if (!nomeInput || !nomeInput.value.trim()) {
+    alert('Preencha o nome completo do aluno.');
+    return;
+  }
+
+  const novoAluno = {
+    nome: nomeInput.value.trim(),
+    serie: serieInput ? serieInput.value.trim() : '',
+    turma: turmaInput ? turmaInput.value.trim() : ''
+  };
+
+  const { data, error } = await supabaseClient
+    .from('alunos')
+    .insert([novoAluno]);
+
+  if (error) {
+    console.error('Erro ao adicionar aluno:', error.message);
+    alert('Erro ao salvar aluno: ' + error.message);
+  } else {
+    alert('Aluno adicionado com sucesso!');
+    nomeInput.value = '';
+    if (serieInput) serieInput.value = '';
+    if (turmaInput) turmaInput.value = '';
+    carregarAlunosDoSupabase();
+  }
+}
+
+/* ============ IMPORTAR LISTA EM LOTE ============ */
 async function salvarListaAlunosNoSupabase(novosAlunosArray) {
   const statusEl = document.getElementById('importar-status');
   if (statusEl) statusEl.innerText = 'Enviando alunos para o Supabase...';
@@ -573,24 +644,26 @@ async function salvarListaAlunosNoSupabase(novosAlunosArray) {
     alert('Erro ao salvar no banco de dados: ' + error.message);
   } else {
     if (statusEl) statusEl.innerText = 'Lista importada e salva com sucesso no Supabase!';
-    alert('Alunos importados com sucesso!');
+    alert(`${novosAlunosArray.length} aluno(s) importado(s) com sucesso!`);
+    
+    const textarea = document.getElementById('importar-texto');
+    if (textarea) textarea.value = '';
+    
     carregarAlunosDoSupabase();
   }
 }
 
-async function salvarOcorrenciaNoSupabase(dadosOcorrencia) {
-  const { data, error } = await supabaseClient
-    .from('ocorrencias')
-    .insert([dadosOcorrencia]);
-
+async function deletarAluno(id) {
+  if (!confirm('Deseja realmente remover este aluno?')) return;
+  const { error } = await supabaseClient.from('alunos').delete().eq('id', id);
   if (error) {
-    console.error('Erro ao salvar ocorrência:', error.message);
-    alert('Erro ao registrar ocorrência no banco de dados.');
+    alert('Erro ao excluir aluno: ' + error.message);
   } else {
-    alert('Ficha de ocorrência salva com segurança na nuvem!');
+    carregarAlunosDoSupabase();
   }
 }
 
+/* ============ AUTENTICAÇÃO ============ */
 async function fazerLogin() {
   const cpfInput = document.getElementById('login-cpf');
   const senhaInput = document.getElementById('login-senha');
@@ -655,13 +728,41 @@ if (supabaseClient) {
   });
 }
 
+/* ============ INICIALIZAÇÃO DE EVENTOS ============ */
 document.addEventListener('DOMContentLoaded', () => {
-  const btnImportar = document.getElementById('btn-importar-lista');
+  // Evento de Leitura do Arquivo CSV/TXT
+  const fileInput = document.querySelector('input[type="file"]');
+  const textarea = document.getElementById('importar-texto') || document.querySelector('textarea');
+  
+  if (fileInput && textarea) {
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        textarea.value = evt.target.result;
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  // Evento do Botão Adicionar Aluno Manual
+  const btnAdicionarManual = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Adicionar aluno'));
+  if (btnAdicionarManual) {
+    btnAdicionarManual.addEventListener('click', (e) => {
+      e.preventDefault();
+      adicionarAlunoManual();
+    });
+  }
+
+  // Evento do Botão Importar Lista em Lote
+  const btnImportar = document.getElementById('btn-importar-lista') || Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Importar'));
   if (btnImportar) {
-    btnImportar.addEventListener('click', () => {
-      const texto = document.getElementById('importar-texto').value.trim();
+    btnImportar.addEventListener('click', (e) => {
+      e.preventDefault();
+      const texto = textarea ? textarea.value.trim() : '';
       if (!texto) {
-        alert('Cole a lista de alunos no campo de texto antes de importar.');
+        alert('Selecione um arquivo CSV ou cole a lista de alunos no campo de texto.');
         return;
       }
 
@@ -673,24 +774,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!linha) continue;
 
         const partes = linha.split(/;|,|\t/);
-        if (partes.length >= 3) {
+        if (partes.length >= 2) {
           const nome = partes[0].trim();
-          const serie = partes[1].trim();
-          const turma = partes[2].trim();
+          const serie = partes[1] ? partes[1].trim() : '';
+          const turma = partes[2] ? partes[2].trim() : '';
 
           const upperNome = nome.toUpperCase();
-          if (upperNome.includes('TRANSFERIDA') || upperNome.includes('FALECIDO') || upperNome.includes('TRANSFERIDO')) {
+          if (upperNome.includes('TRANSFERIDA') || upperNome.includes('FALECIDO') || upperNome.includes('TRANSFERIDO') || upperNome.includes('NOME COMPLETO')) {
             continue;
           }
 
-          if (nome && serie && turma) {
+          if (nome) {
             novosAlunos.push({ nome, serie, turma });
           }
         }
       }
 
       if (novosAlunos.length === 0) {
-        alert('Nenhum aluno válido encontrado. Verifique o formato Nome;Série;Turma.');
+        alert('Nenhum aluno válido encontrado no texto/arquivo. Verifique o formato Nome;Série;Turma.');
         return;
       }
 
