@@ -303,22 +303,38 @@
     <div class="empty-msg" id="alunos-empty" style="display:none;">Nenhum aluno cadastrado ainda.</div>
 
     <details style="margin-top:26px;">
-      <summary class="add-summary">+ Adicionar / editar aluno manualmente</summary>
-      <div class="grid3" style="margin-top:10px;">
-        <div>
-          <label>Nome completo</label>
-          <input type="text" id="a-nome" placeholder="Ex: João da Silva Souza">
-        </div>
-        <div>
-          <label>Série / Ano</label>
-          <input type="text" id="a-serie" placeholder="Ex: 5º Ano">
-        </div>
-        <div>
-          <label>Turma / Sala</label>
-          <input type="text" id="a-turma" placeholder="Ex: C">
-        </div>
-      </div>
-      <button class="btn btn-primary" id="btn-add-aluno">+ Adicionar aluno</button>
+     /* ============ ADICIONAR ALUNO MANUALMENTE ============ */
+async function adicionarAlunoManual() {
+  const nomeInput = document.getElementById('add-aluno-nome');
+  const serieInput = document.getElementById('add-aluno-serie');
+  const turmaInput = document.getElementById('add-aluno-turma');
+
+  if (!nomeInput || !nomeInput.value.trim()) {
+    alert('Preencha o nome completo do aluno.');
+    return;
+  }
+
+  const novoAluno = {
+    nome: nomeInput.value.trim(),
+    serie: serieInput ? serieInput.value.trim() : '',
+    turma: turmaInput ? turmaInput.value.trim() : ''
+  };
+
+  const { data, error } = await supabaseClient
+    .from('alunos')
+    .insert([novoAluno]);
+
+  if (error) {
+    console.error('Erro ao adicionar aluno:', error.message);
+    alert('Erro ao salvar aluno no Supabase: ' + error.message);
+  } else {
+    alert('Aluno adicionado com sucesso!');
+    nomeInput.value = '';
+    if (serieInput) serieInput.value = '';
+    if (turmaInput) turmaInput.value = '';
+    carregarAlunosDoSupabase();
+  }
+}
       <button class="btn btn-secondary" id="btn-cancel-edit" style="display:none;">Cancelar edição</button>
       <button class="btn-danger" id="btn-limpar-tudo" style="margin-top:16px;">Limpar toda a lista</button>
     </details>
