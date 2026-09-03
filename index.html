@@ -76,14 +76,20 @@
     .toolbar input { flex: 2; min-width: 220px; }
     .toolbar select { flex: 1; min-width: 150px; }
 
-    /* Bloco Visual de cada Turma */
-    .card-turma {
-      background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    /* Accordion de Turmas */
+    details.card-turma {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    .turma-header-title {
-      background: #eff6ff; padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--primary);
+    details.card-turma summary {
+      background: #eff6ff; padding: 14px 20px; border-bottom: 1px solid transparent; display: flex; justify-content: space-between; align-items: center; color: var(--primary); cursor: pointer; user-select: none; transition: background 0.2s;
     }
-    .turma-header-title strong { font-size: 16px; font-weight: 700; }
+    details.card-turma[open] summary {
+      border-bottom-color: var(--border);
+    }
+    details.card-turma summary:hover { background: #dbeafe; }
+    details.card-turma summary::-webkit-details-marker { display: none; }
+    
+    .turma-title-text { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
     .badge-count { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
 
     table { width: 100%; border-collapse: collapse; }
@@ -95,8 +101,8 @@
     .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
     .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
 
-    details { background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
-    summary { font-weight: 600; cursor: pointer; color: var(--primary); font-size: 14px; }
+    details.form-accordion { background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
+    details.form-accordion summary { font-weight: 600; cursor: pointer; color: var(--primary); font-size: 14px; }
 
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
@@ -142,7 +148,7 @@
       <div id="panel-alunos" class="tab-panel active">
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3>Lista Geral de Alunos</h3>
+            <h3>Organização Geral de Alunos</h3>
             <span id="total-alunos-badge" class="badge-count">0 alunos</span>
           </div>
 
@@ -158,7 +164,7 @@
           </div>
 
           <!-- CADASTRO MANUAL -->
-          <details>
+          <details class="form-accordion">
             <summary>+ Cadastrar Novo Aluno</summary>
             <div class="grid3" style="margin-top: 12px;">
               <div>
@@ -178,7 +184,7 @@
           </details>
 
           <!-- IMPORTAÇÃO EM LOTE -->
-          <details>
+          <details class="form-accordion">
             <summary>🔄 Importar Alunos em Lote</summary>
             <div style="margin-top: 12px;">
               <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Cole no formato: <strong>Nome;Série;Turma</strong></p>
@@ -189,7 +195,7 @@
           </details>
         </div>
 
-        <!-- CONTAINER ONDE OS BLOCOS DAS TURMAS SÃO GERADOS -->
+        <!-- CONTAINER COM AS TURMAS FECHADAS POR PADRÃO -->
         <div id="lista-agrupada-container">
           <p style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando alunos e agrupando por turma...</p>
         </div>
@@ -293,7 +299,7 @@
       }
     }
 
-    /* ============ CARREGAR E AGRUPAR ALUNOS POR SÉRIE E TURMA ============ */
+    /* ============ CARREGAR E AGRUPAR ALUNOS (INICIAM FECHADOS) ============ */
     async function carregarAlunosDoSupabase() {
       if (!supabaseClient) return;
 
@@ -361,7 +367,7 @@
         return;
       }
 
-      // Agrupamento por chave única (Série + Turma)
+      // Agrupamento por Série e Turma
       const grupos = {};
       alunos.forEach(aluno => {
         const serie = aluno.serie ? aluno.serie.trim() : 'Sem Série';
@@ -372,24 +378,24 @@
         grupos[chaveGrupo].push(aluno);
       });
 
-      // Ordena alfabeticamente os grupos
       const gruposOrdenados = Object.keys(grupos).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
       gruposOrdenados.forEach(nomeGrupo => {
         const listaDaTurma = grupos[nomeGrupo];
         listaDaTurma.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
 
-        const card = document.createElement('div');
-        card.className = 'card-turma';
+        // Elemento details (SEM a propriedade open)
+        const details = document.createElement('details');
+        details.className = 'card-turma';
 
-        card.innerHTML = `
-          <div class="turma-header-title">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size: 18px;">📁</span>
-              <strong>${nomeGrupo}</strong>
+        details.innerHTML = `
+          <summary>
+            <div class="turma-title-text">
+              <span style="font-size: 16px;">📁</span>
+              <span>${nomeGrupo}</span>
             </div>
             <span class="badge-count">${listaDaTurma.length} aluno(s)</span>
-          </div>
+          </summary>
           <div style="overflow-x: auto;">
             <table>
               <thead>
@@ -411,7 +417,7 @@
             </table>
           </div>
         `;
-        container.appendChild(card);
+        container.appendChild(details);
       });
     }
 
@@ -523,7 +529,7 @@
 
       const { data, error } = await supabaseClient.from('ocorrencias').select('*').order('data', { ascending: false });
       if (error) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Tabela "ocorrencias" não encontrada ou sem dados.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Tabela "ocorrencias" não encontrada.</td></tr>';
         return;
       }
 
