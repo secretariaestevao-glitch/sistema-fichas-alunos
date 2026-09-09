@@ -52,6 +52,9 @@
 
     #login-error { color: var(--danger); font-size: 13px; margin-top: 12px; text-align: center; font-weight: 500; }
 
+    /* ===== NOTIFICAÇÕES ===== */
+    .notificacoes-wrap{position:relative}.btn-notificacoes{position:relative;min-width:44px;height:38px;padding:6px 10px;font-size:20px}.notificacoes-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:1px 5px;border-radius:10px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;line-height:16px;text-align:center;display:none}.notificacoes-painel{display:none;position:absolute;right:0;top:46px;width:380px;max-width:calc(100vw - 30px);background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 15px 35px rgba(15,23,42,.18);z-index:1000;overflow:hidden}.notificacoes-painel.aberto{display:block}.notificacoes-cabecalho{padding:13px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.notificacoes-lista{max-height:430px;overflow-y:auto}.notificacao-item{padding:13px 15px;border-bottom:1px solid #f1f5f9}.notificacao-item:hover{background:#f8fafc}.notificacao-item.pendente-hoje{border-left:4px solid var(--danger)}.notificacao-titulo{font-weight:800;font-size:13px;margin-bottom:5px}.notificacao-aluno{font-weight:700;font-size:13px;color:var(--primary)}.notificacao-meta{font-size:11px;color:var(--text-muted);margin-top:4px}.notificacao-msg{font-size:12px;margin-top:6px;line-height:1.4}.notificacao-acoes{margin-top:9px;display:flex;justify-content:flex-end}.notificacoes-vazia{padding:28px 15px;text-align:center;color:var(--text-muted);font-size:13px}
+
     /* Sistema Principal */
     #sistema-container { display: none; width: 100%; }
 
@@ -238,7 +241,16 @@
           <h1>Sistema de Fichas do Aluno</h1>
           <p>E.M.T.I Estevão Alves da Rocha · Inep 23224550 · Baturité/CE</p>
         </div>
-        <button class="btn btn-danger btn-sm" onclick="fazerLogout()">Sair</button>
+        <div style="display:flex;align-items:center;gap:10px;position:relative;">
+          <div class="notificacoes-wrap">
+            <button type="button" class="btn btn-secondary btn-notificacoes" title="Notificações" onclick="alternarPainelNotificacoes()">🔔<span id="notificacoes-badge" class="notificacoes-badge">0</span></button>
+            <div id="notificacoes-painel" class="notificacoes-painel">
+              <div class="notificacoes-cabecalho"><strong>🔔 Notificações</strong><button type="button" class="btn btn-sm btn-secondary" onclick="carregarNotificacoes()">↻ Atualizar</button></div>
+              <div id="notificacoes-lista" class="notificacoes-lista"><div class="notificacoes-vazia">Carregando...</div></div>
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="fazerLogout()">Sair</button>
+        </div>
       </div>
 
       <!-- ABAS -->
@@ -792,6 +804,9 @@
       document.getElementById('oc-preview').innerHTML=ocorrenciaPageHtml(dados);
       document.getElementById('btn-print-oc').style.display='inline-flex';
       await carregarHistoricoDoSupabase();
+      const nres=await criarNotificacao({aluno:a,tipo:'ocorrencia',titulo:'Nova ocorrência registrada',mensagem:`Ocorrência registrada para ${a.nome}.`,dataEvento:dados.data});
+      if(nres.error) console.error('Notificação da ocorrência:',nres.error);
+      await atualizarContadorNotificacoes();
       alert('Ocorrência registrada com sucesso.');
     }
 
@@ -822,6 +837,9 @@
       document.getElementById('cv-preview').innerHTML=convocacaoHtml(dados);
       document.getElementById('btn-print-cv').style.display='inline-flex';
       await carregarHistoricoDoSupabase();
+      const nres=await criarNotificacao({aluno:a,tipo:'convocacao',titulo:'Convocação do responsável',mensagem:`O responsável deverá comparecer à escola obrigatoriamente em ${fmtData(data)} às ${hora} horas.`,dataEvento:data,horaEvento:hora});
+      if(nres.error) console.error('Notificação da convocação:',nres.error);
+      await atualizarContadorNotificacoes();
       alert('Convocação registrada com sucesso.');
     }
 
@@ -869,6 +887,11 @@
       document.getElementById('sp-preview').innerHTML=suspensaoHtml(dados);
       document.getElementById('btn-print-sp').style.display='inline-flex';
       await carregarHistoricoDoSupabase();
+      const n1=await criarNotificacao({aluno:a,tipo:'suspensao',titulo:'Suspensão registrada',mensagem:`Suspensão de ${dias} dia(s), de ${fmtData(inicio)} a ${fmtData(fim)}.`,dataEvento:inicio});
+      const n2=await criarNotificacao({aluno:a,tipo:'retorno',titulo:'Retorno da suspensão',mensagem:'O aluno deverá retornar às atividades escolares nesta data.',dataEvento:retorno});
+      if(n1.error) console.error('Notificação da suspensão:',n1.error);
+      if(n2.error) console.error('Notificação do retorno:',n2.error);
+      await atualizarContadorNotificacoes();
       alert('Suspensão registrada com sucesso.');
     }
 
@@ -970,6 +993,15 @@
       await carregarHistoricoDoSupabase();
     }
 
+    // ================= NOTIFICAÇÕES =================
+    function tipoNotificacaoConfig(tipo){const mapa={ocorrencia:{icone:'📝',titulo:'Nova ocorrência'},convocacao:{icone:'📢',titulo:'Convocação'},suspensao:{icone:'🚫',titulo:'Suspensão'},retorno:{icone:'🔔',titulo:'Retorno da suspensão'}};return mapa[tipo]||{icone:'🔔',titulo:'Notificação'};}
+    function dataHojeLocal(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
+    async function criarNotificacao({aluno,tipo,titulo,mensagem,dataEvento,horaEvento=null}){if(!supabaseClient||!aluno?.id)return {error:{message:'Aluno ou Supabase indisponível'}};const cfg=tipoNotificacaoConfig(tipo);return await supabaseClient.from('notificacoes').insert([{aluno_id:aluno.id,aluno_nome:aluno.nome||'',serie:aluno.serie||'',turma:aluno.turma||'',tipo:tipo||'outro',titulo:titulo||cfg.titulo,mensagem:mensagem||'',data_evento:dataEvento,hora_evento:horaEvento||null,status:'pendente'}]);}
+    async function carregarNotificacoes(){const lista=document.getElementById('notificacoes-lista'),badge=document.getElementById('notificacoes-badge');if(!lista||!supabaseClient)return;lista.innerHTML='<div class="notificacoes-vazia">Carregando...</div>';const {data,error}=await supabaseClient.from('notificacoes').select('*').eq('status','pendente').order('data_evento',{ascending:true}).order('hora_evento',{ascending:true}).limit(50);if(error){lista.innerHTML='<div class="notificacoes-vazia">Erro ao carregar notificações.</div>';if(badge)badge.style.display='none';console.error(error);return;}const itens=data||[];if(badge){badge.textContent=itens.length>99?'99+':String(itens.length);badge.style.display=itens.length?'block':'none';}if(!itens.length){lista.innerHTML='<div class="notificacoes-vazia">✅ Nenhuma notificação pendente.</div>';return;}const hoje=dataHojeLocal();lista.innerHTML=itens.map(n=>{const cfg=tipoNotificacaoConfig(n.tipo),hf=n.data_evento===hoje,quando=fmtData(n.data_evento)+(n.hora_evento?' às '+String(n.hora_evento).slice(0,5):'');return `<div class="notificacao-item ${hf?'pendente-hoje':''}"><div class="notificacao-titulo">${cfg.icone} ${escapeHtml(n.titulo)} ${hf?'<span style="color:var(--danger);">— HOJE</span>':''}</div><div class="notificacao-aluno">${escapeHtml(n.aluno_nome)} — ${escapeHtml(n.serie||'')}${n.turma?' — Turma '+escapeHtml(n.turma):''}</div><div class="notificacao-meta">📅 ${escapeHtml(quando)}</div>${n.mensagem?`<div class="notificacao-msg">${escapeHtml(n.mensagem)}</div>`:''}<div class="notificacao-acoes"><button type="button" class="btn btn-sm btn-success" onclick="concluirNotificacao('${n.id}')">✓ Marcar como concluída</button></div></div>`;}).join('');}
+    async function concluirNotificacao(id){const {error}=await supabaseClient.from('notificacoes').update({status:'concluida',concluida_em:new Date().toISOString()}).eq('id',id);if(error)return alert('Erro ao concluir notificação: '+error.message);await carregarNotificacoes();}
+    function alternarPainelNotificacoes(){const p=document.getElementById('notificacoes-painel');if(!p)return;p.classList.toggle('aberto');if(p.classList.contains('aberto'))carregarNotificacoes();}
+    async function atualizarContadorNotificacoes(){if(!supabaseClient)return;const {count,error}=await supabaseClient.from('notificacoes').select('id',{count:'exact',head:true}).eq('status','pendente');if(error)return;const badge=document.getElementById('notificacoes-badge');if(badge){badge.textContent=count>99?'99+':String(count||0);badge.style.display=count?'block':'none';}}
+
     async function fazerLogin() {
       const cpf=document.getElementById('login-cpf').value.trim(), senha=document.getElementById('login-senha').value.trim(), erro=document.getElementById('login-error');
       if(!cpf||!senha) { erro.innerText='Preencha CPF e senha.'; return; }
@@ -977,7 +1009,7 @@
       if(error) erro.innerText='CPF ou senha incorretos.'; else if(data.session) liberarSistema();
     }
     async function fazerLogout() { if(supabaseClient) await supabaseClient.auth.signOut(); location.reload(); }
-    function liberarSistema() { document.getElementById('login-screen').style.display='none'; document.getElementById('sistema-container').style.display='block'; carregarAlunosDoSupabase(); }
+    function liberarSistema() { document.getElementById('login-screen').style.display='none'; document.getElementById('sistema-container').style.display='block'; carregarAlunosDoSupabase(); atualizarContadorNotificacoes(); }
 
     document.addEventListener('DOMContentLoaded',()=>{
       document.getElementById('oc-data').value=hojeISO(); document.getElementById('cv-data').value=hojeISO(); document.getElementById('sp-inicio').value=hojeISO();
